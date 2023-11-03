@@ -6,13 +6,13 @@
 
 namespace cvops
 {
-    IInferenceManager* InferenceManagerFactory::create_inference_manager(InferenceSessionRequest* request)
+    std::shared_ptr<IInferenceManager> InferenceManagerFactory::create_inference_manager(InferenceSessionRequest* request)
     {
-        IInferenceManager* mgr_ptr;
+        std::shared_ptr<IInferenceManager> mgr_ptr;
         switch (request->model_platform)
         {
             case ModelPlatforms::YOLO:
-                mgr_ptr = new YoloInferenceManager();
+                mgr_ptr = std::make_shared<YoloInferenceManager>();
                 break;
             default:
                 break;

@@ -13,6 +13,8 @@ extern "C" {
 
     std::string err_msg;
 
+    std::shared_ptr<cvops::IInferenceManager> manager;
+
     void wrap_exception(std::exception& ex) {
         err_msg = ex.what();
         std::cout << err_msg << std::endl;
@@ -22,22 +24,28 @@ extern "C" {
         try {
             std::cout << "Starting inference session..." << std::endl;
             std::unique_ptr<cvops::InferenceManagerFactory> factory = std::make_unique<cvops::InferenceManagerFactory>();
-            cvops::IInferenceManager* mgr_ptr = factory->create_inference_manager(request);
-            return mgr_ptr;
+            manager = factory->create_inference_manager(request);
+            return manager.get();
         } catch (std::exception& ex) {
             wrap_exception(ex);
             return nullptr;
         }
     }
 
-    cvops::InferenceResult run_inference(cvops::IInferenceManager* inference_manager, cvops::InferenceRequest* inference_request) {
+    void run_inference(cvops::IInferenceManager* inference_manager, cvops::InferenceRequest* inference_request, cvops::InferenceResult* inference_result) 
+    {
         try {
-            std::cout << "Running inference..." << std::endl;
-            cvops::InferenceResult result = inference_manager->infer(inference_request);
-            return result;
+            inference_manager->infer(inference_request, inference_result);
         } catch (std::exception& ex) {
             wrap_exception(ex);
-            return cvops::InferenceResult();
+        }
+    }
+
+    void end_inference_session(cvops::IInferenceManager* inference_manager) {
+        try {
+            delete inference_manager;
+        } catch (std::exception& ex) {
+            wrap_exception(ex);
         }
     }
 

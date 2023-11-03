@@ -12,9 +12,8 @@ namespace cvops
         public:
             IInferenceManager() {};
             virtual ~IInferenceManager() {};
-            virtual void start_session(InferenceSessionRequest* session_request) = 0;
-            virtual InferenceResult infer(InferenceRequest* request) = 0;
-            virtual void end_session() = 0;
+            virtual void start_session(InferenceSessionRequest* session_request_ptr) = 0;
+            virtual void infer(InferenceRequest* request, InferenceResult* result) = 0;
     };
 }
 

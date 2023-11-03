@@ -11,7 +11,7 @@ namespace cvops
         public:
             InferenceManagerFactory() {};
             ~InferenceManagerFactory() {};
-            virtual IInferenceManager* create_inference_manager(InferenceSessionRequest* session_request);
+            virtual std::shared_ptr<IInferenceManager> create_inference_manager(InferenceSessionRequest* session_request);
     };
 }
 

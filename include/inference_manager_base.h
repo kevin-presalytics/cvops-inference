@@ -19,42 +19,28 @@ namespace cvops {
     class InferenceManagerBase : public IInferenceManager {
         public:
             InferenceManagerBase() : IInferenceManager() {};
-            virtual void start_session(InferenceSessionRequest* session_request);
-            virtual InferenceResult infer(InferenceRequest* request);
-            virtual void end_session();
+            virtual void start_session(InferenceSessionRequest* session_request_ptr);
+            virtual void infer(InferenceRequest* request, InferenceResult* result);
             virtual ~InferenceManagerBase();
 
         protected:
             // override in class implementations
-            virtual InferenceResult post_process(std::vector<Ort::Value>* output_tensor) = 0;
+            virtual void post_process(std::vector<Ort::Value>* output_tensor, InferenceResult* inference_result) = 0;
             virtual void pre_process(InferenceRequest* inference_request, cv::Mat* input_image, std::vector<Ort::Value>* input_tensor) = 0;
 
-            // Utility functions for derived classes
-            virtual void decode_image(InferenceRequest* inference_request, cv::Mat* image);
-
-            virtual void resize_and_letterbox_image(
-                const cv::Mat& image, 
-                cv::Mat& out_image,
-                const cv::Size& target_size= cv::Size(640, 640),
-                const cv::Scalar& color = cv::Scalar(114, 114, 114),
-                int stride = 32
-            );
-
-            virtual void draw_detections(cv::Mat* image, InferenceResult* inference_result);
-            virtual std::vector<std::string> get_class_names();
-            virtual Ort::ModelMetadata get_model_metadata();
-            
-            
             // class properties
-            InferenceSessionRequest* session_request_ptr_;
+            InferenceSessionRequest session_request;
             std::unique_ptr<Ort::Session> session;
-            std::vector<std::string> class_names;
             Json::Value metadata;
+            std::vector<std::string> input_names_;
+            std::vector<std::string> output_names_;
+            std::vector<cv::Scalar> color_palette_;
 
         private:
-            std::vector<const char*> get_input_names();
-            std::vector<const char*> get_output_names();
+            void get_input_names();
+            void get_output_names();
             void get_metadata(char* metadata_json_ptr);
+            void get_color_palette();
     };
 }
 

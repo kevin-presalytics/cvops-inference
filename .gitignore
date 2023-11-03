@@ -6,3 +6,4 @@ Makefile
 _deps
 models/
 images/
+out/

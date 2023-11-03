@@ -11,7 +11,8 @@
 extern "C" {
 #endif // __cplusplus
     cvops::IInferenceManager* start_inference_session(cvops::InferenceSessionRequest* request);
-    cvops::InferenceResult run_inference(cvops::IInferenceManager* inference_manager, cvops::InferenceRequest* inference_request);
+    void run_inference(cvops::IInferenceManager* inference_manager, cvops::InferenceRequest* inference_request, cvops::InferenceResult* inference_result);
+    void end_inference_session(cvops::IInferenceManager* inference_manager);
 #ifdef __cplusplus
 }
 #endif // __cplusplus

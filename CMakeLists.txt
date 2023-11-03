@@ -28,6 +28,8 @@ set(HEADER_FILES
     ${INCLUDE_DIR}/inference_session_request.h
     ${INCLUDE_DIR}/model_platforms.h
     ${INCLUDE_DIR}/yolo_inference_manager.h
+    ${INCLUDE_DIR}/metadata_parser.h
+    ${INCLUDE_DIR}/image_utils.h
 )
 
 set(LIBRARY_FILES
@@ -36,6 +38,8 @@ set(LIBRARY_FILES
     ${LIB_DIR}/inference_manager_factory.cpp
     ${LIB_DIR}/yolo_inference_manager.cpp
     ${LIB_DIR}/inference_result.cpp
+    ${LIB_DIR}/metadata_parser.cpp
+    ${LIB_DIR}/image_utils.cpp
 )
 
 add_library(C_API SHARED
@@ -64,7 +68,6 @@ set_target_properties(cvops_inference PROPERTIES
 )
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/external/opencv)
-add_subdirectory(${CMAKE_SOURCE_DIR}/external/numcpp)
 add_subdirectory(${CMAKE_SOURCE_DIR}/external/onnx)
 add_subdirectory(${CMAKE_SOURCE_DIR}/external/jsoncpp)
 

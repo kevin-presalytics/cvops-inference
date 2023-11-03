@@ -12,6 +12,7 @@
             "args": [
                 "./tests/files/models/yolov8n.onnx",
                 "./tests/files/images",
+                "./tests/files/models/yolov8n-metadata.json",
                 "./out"
 
             ],

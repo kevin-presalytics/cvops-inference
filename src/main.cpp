@@ -10,6 +10,7 @@
 #include <vector>
 #include <filesystem>
 #include <cstring>
+#include <sys/stat.h>
 
 void command_line_inference(std::string model_path, std::string image_dir, std::string output_path)
 {
@@ -21,11 +22,13 @@ void command_line_inference(std::string model_path, std::string image_dir, std::
 
     // Run inference
     cvops::InferenceRequest request = cvops::InferenceRequest();
+    cvops::InferenceResult result = cvops::InferenceResult();
+
     request.bytes = 0;  //TODO: Add image bytes to request
-    cvops::InferenceResult result = run_inference(mgr_ptr, &request);
+    run_inference(mgr_ptr, &request, &result); 
 
     // Print results
-    int objects = result.boxes.size();
+    int objects = result.boxes_count;
     std::cout << "Number of objects detected: " << objects << std::endl;
 
     // Clean up
@@ -39,7 +42,7 @@ int main(int argc, char** argv)
 {
     try
     {
-        if (argc != 4)
+        if (argc != 5)
         {
             std::cout << "Usage: " << argv[0] << " <model_path> <image_dir> <output_path>" << std::endl;
             return 1;
@@ -47,27 +50,48 @@ int main(int argc, char** argv)
         // Get command line arguments
         std::string model_path = argv[1];
         std::string image_dir = argv[2];
-        std::string output_path = argv[3];
+        std::string metadata_path = argv[3];
+        std::string output_path = argv[4];
 
         // Get list of images to run inference on
         std::vector<std::string> image_names;
         for (const auto &entry : std::filesystem::directory_iterator(image_dir))
             image_names.push_back(entry.path().string());
 
-        // get class names from file
+        struct stat sb;
 
-        char class_names = {};
+        if (stat(output_path.c_str(), &sb) != 0)
+        {
+            std::filesystem::create_directory(output_path);
+        }
+        std::string metadata;
+        std::ifstream metadata_file(metadata_path);
+        if (metadata_file.is_open())
+        {
+            std::string line;
+            while (std::getline(metadata_file, line))
+                metadata += line + "\n";
+        }
+        else
+        {
+            std::cout << "Unable to open metadata file" << std::endl;
+            return 1;
+        }
+        
 
-        float confidence_threshold = 0.9f;
+        float confidence_threshold = 0.5f;
         float iou_threshold = 0.5f;
         char* model_path_ = new char[model_path.length() + 1];
         strcpy(model_path_, model_path.c_str());
+
+
 
         cvops::InferenceSessionRequest session_request = cvops::InferenceSessionRequest{};
         session_request.model_platform = cvops::ModelPlatforms::YOLO;
         session_request.model_path = model_path_;
         session_request.confidence_threshold = &confidence_threshold;
         session_request.iou_threshold = &iou_threshold;
+        session_request.metadata = (char*)metadata.c_str();
         
 
         cvops::IInferenceManager* mgr_ptr = start_inference_session(&session_request);
@@ -96,7 +120,27 @@ int main(int argc, char** argv)
                 .size = (int)buffer.size(),
                 .draw_detections = true,
             };
-            cvops::InferenceResult result = run_inference(mgr_ptr, &request);
+            cvops::InferenceResult result = cvops::InferenceResult{};
+            run_inference(mgr_ptr, &request, &result);
+
+            // Write results to file
+            size_t fname_start = image_name.find_last_of("//") + 1;
+            size_t fname_length = image_name.find_last_of(".") - fname_start;
+            std::string f_name = image_name.substr(fname_start, fname_length);
+            std::string f_path = output_path + "/" + f_name + ".png";
+
+            struct stat target_file;
+
+            if (stat(f_path.c_str(), &target_file) == 0)
+                std::filesystem::remove(f_path);
+
+            std::ofstream out_file;
+            out_file.open (f_path);
+            out_file.write(reinterpret_cast<const char*>(result.image), result.image_size);
+            out_file.close();
+
+            //for debugging
+            std::cout << "Number of objects detected: " << result.boxes_count << std::endl;
         }
     } catch (const std::exception& e)
     {
