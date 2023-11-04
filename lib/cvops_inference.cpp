@@ -1,3 +1,4 @@
+#include "cvops_inference.h"
 #include "inference_manager_factory.h"
 #include "inference_manager_interface.h"
 #include "model_platforms.h"

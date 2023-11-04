@@ -100,7 +100,7 @@ namespace cvops
             inference_result->boxes[j].class_name = (char*)this->metadata["classes"][std::to_string(class_ids[idx])].asCString();
             // for debugging
 
-            std::cout << "Class: " << class_name << ", Confidence: " << confidences[idx] << std::endl;
+            // std::cout << "Class: " << class_name << ", Confidence: " << confidences[idx] << std::endl;
         }
     }
     

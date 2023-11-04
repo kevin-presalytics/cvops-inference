@@ -7,3 +7,4 @@ _deps
 models/
 images/
 out/
+install_manifest.txt

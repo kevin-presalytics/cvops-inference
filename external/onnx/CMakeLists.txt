@@ -40,3 +40,10 @@ target_link_libraries(cvops_inference ONNX_RUNTIME)
 
 target_include_directories(cvops_inference PRIVATE ${ONNX_INCLUDE_DIR})
 target_include_directories(C_API PRIVATE ${ONNX_INCLUDE_DIR})
+
+install(
+    FILES 
+        ${ONNX_BIN_DIR}/${ONNX_RUNTIME_IDENTIFIER}/lib/libonnxruntime.so
+        ${ONNX_BIN_DIR}/${ONNX_RUNTIME_IDENTIFIER}/lib/libonnxruntime.so.${ONNX_VERSION}
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${ONNX_BIN_DIR}/${ONNX_RUNTIME_IDENTIFIER}
+)

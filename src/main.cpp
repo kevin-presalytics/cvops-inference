@@ -1,4 +1,4 @@
-#include "c_api.h"
+#include "cvops_inference.h"
 #include "inference_session_request.h"
 #include "inference_manager_interface.h"
 

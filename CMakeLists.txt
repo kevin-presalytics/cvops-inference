@@ -5,7 +5,7 @@ set (CMAKE_CXX_FLAGS "-lstdc++fs -std=c++17")
 
 # Global settings
 set(GLOBAL_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/build)
-set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/install)
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 
 # Sets global output directory for single configuration (GCC)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${GLOBAL_OUTPUT_PATH})
@@ -20,7 +20,7 @@ set(LIB_DIR ${CMAKE_SOURCE_DIR}/lib)
 project(cvops_inference)
 
 set(HEADER_FILES 
-    ${INCLUDE_DIR}/c_api.h
+    ${INCLUDE_DIR}/cvops_inference.h
     ${INCLUDE_DIR}/inference_manager_base.h
     ${INCLUDE_DIR}/inference_manager_factory.h
     ${INCLUDE_DIR}/inference_request.h
@@ -33,7 +33,7 @@ set(HEADER_FILES
 )
 
 set(LIBRARY_FILES
-    ${LIB_DIR}/c_api.cpp
+    ${LIB_DIR}/cvops_inference.cpp
     ${LIB_DIR}/inference_manager_base.cpp
     ${LIB_DIR}/inference_manager_factory.cpp
     ${LIB_DIR}/yolo_inference_manager.cpp
@@ -46,13 +46,14 @@ add_library(C_API SHARED
     ${LIBRARY_FILES}
     ${HEADER_FILES}
 )
+
 target_include_directories(C_API PUBLIC ${INCLUDE_DIR})
 
 set_target_properties(C_API 
     PROPERTIES
         VERSION 1.0.0
         OUTPUT_NAME cvops
-        PUBLIC_HEADER ${INCLUDE_DIR}/c_api.h
+        PUBLIC_HEADER ${INCLUDE_DIR}/cvops_inference.h
 )
 
 add_executable(cvops_inference 
@@ -64,10 +65,17 @@ add_executable(cvops_inference
 target_include_directories(cvops_inference PUBLIC ${INCLUDE_DIR})
 
 set_target_properties(cvops_inference PROPERTIES
-    OUTPUT_NAME cvops_inference.app
+    OUTPUT_NAME cvops
 )
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/external/opencv)
 add_subdirectory(${CMAKE_SOURCE_DIR}/external/onnx)
 add_subdirectory(${CMAKE_SOURCE_DIR}/external/jsoncpp)
+
+install(
+    TARGETS cvops_inference C_API
+    RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+    LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_PREFIX}/include
+)
 
