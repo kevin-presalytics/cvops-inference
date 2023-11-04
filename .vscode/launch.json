@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/cvops_inference.app",
+            "program": "${workspaceFolder}/build/cvops",
             "args": [
                 "./tests/files/models/yolov8n.onnx",
                 "./tests/files/images",
