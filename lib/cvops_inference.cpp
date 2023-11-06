@@ -25,7 +25,7 @@ extern "C" {
         try {
             std::cout << "Starting inference session..." << std::endl;
             std::unique_ptr<cvops::InferenceManagerFactory> factory = std::make_unique<cvops::InferenceManagerFactory>();
-            manager = factory->create_inference_manager(request);
+            std::shared_ptr<cvops::IInferenceManager> manager = factory->create_inference_manager(request);
             managers.push_back(manager);
             return manager.get();
         } catch (std::exception& ex) {
@@ -46,9 +46,12 @@ extern "C" {
     void end_inference_session(cvops::IInferenceManager* inference_manager) {
         try {
             std::cout << "Ending inference session..." << std::endl;
-            for(const auto& manager : managers) {
+            size_t manager_count = managers.size();
+            for (int i = 0; i < manager_count; i++)
+            {
+                std::shared_ptr<cvops::IInferenceManager> manager = managers[i];
                 if (manager.get() == inference_manager) {
-                    managers.erase(manager);
+                    managers.erase(managers.begin() + i);
                     break;
                 }
             }
@@ -58,7 +61,7 @@ extern "C" {
         }
     }
 
-    char* error_message() {
+    const char* error_message() {
         return err_msg.c_str();
     }
 
