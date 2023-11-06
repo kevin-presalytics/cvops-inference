@@ -14,7 +14,7 @@ extern "C" {
 
     std::string err_msg;
 
-    std::shared_ptr<cvops::IInferenceManager> manager;
+    std::vector<std::shared_ptr<cvops::IInferenceManager>> managers;
 
     void wrap_exception(std::exception& ex) {
         err_msg = ex.what();
@@ -26,6 +26,7 @@ extern "C" {
             std::cout << "Starting inference session..." << std::endl;
             std::unique_ptr<cvops::InferenceManagerFactory> factory = std::make_unique<cvops::InferenceManagerFactory>();
             manager = factory->create_inference_manager(request);
+            managers.push_back(manager);
             return manager.get();
         } catch (std::exception& ex) {
             wrap_exception(ex);
@@ -44,14 +45,21 @@ extern "C" {
 
     void end_inference_session(cvops::IInferenceManager* inference_manager) {
         try {
+            std::cout << "Ending inference session..." << std::endl;
+            for(const auto& manager : managers) {
+                if (manager.get() == inference_manager) {
+                    managers.erase(manager);
+                    break;
+                }
+            }
             delete inference_manager;
         } catch (std::exception& ex) {
             wrap_exception(ex);
         }
     }
 
-    char error_message() {
-        return *err_msg.c_str();
+    char* error_message() {
+        return err_msg.c_str();
     }
 
 #ifdef __cplusplus
