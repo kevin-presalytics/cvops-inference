@@ -11,6 +11,7 @@
 #include <filesystem>
 #include <cstring>
 #include <sys/stat.h>
+#include <opencv2/opencv.hpp>
 
 void command_line_inference(std::string model_path, std::string image_dir, std::string output_path)
 {
@@ -35,6 +36,14 @@ void command_line_inference(std::string model_path, std::string image_dir, std::
     delete mgr_ptr;
     delete &result;
     mgr_ptr = NULL;
+}
+
+size_t getFilesize(const char* filename) {
+    struct stat st;
+    if(stat(filename, &st) != 0) {
+        return 0;
+    }
+    return st.st_size;   
 }
 
 
@@ -105,42 +114,57 @@ int main(int argc, char** argv)
         // Run inference on each image
         for (std::string image_name : image_names)
         {
-            std::ifstream input( image_name, std::ios::binary );
+            try {
+                cv::Mat image = cv::imread(image_name, cv::IMREAD_COLOR);
+                std::vector<uchar> buf(10485760); // 10MB allocation for large images
+                cv::imencode(".png", image, buf);
+                size_t buf_size = buf.size();
+                unsigned char* buffer = new u_char[buf_size];
+                std::copy(buf.begin(), buf.end(), buffer);
+                
 
-            // copies all data into buffer
-            std::vector<char> buffer(std::istreambuf_iterator<char>(input), {});
+                char* image_name_ = new char[image_name.length() + 1];
+                strcpy(image_name_, image_name.c_str());
 
-            char* image_name_ = new char[image_name.length() + 1];
-            strcpy(image_name_, image_name.c_str());
-            
+                
 
-            cvops::InferenceRequest request = cvops::InferenceRequest{
-                .bytes = buffer.data(),
-                .name = image_name_,
-                .size = (int)buffer.size(),
-                .draw_detections = true,
-            };
-            cvops::InferenceResult result = cvops::InferenceResult{};
-            run_inference(mgr_ptr, &request, &result);
+                cvops::InferenceRequest request = cvops::InferenceRequest{
+                    .bytes = buffer,
+                    .name = image_name_,
+                    .size = (int)buf_size,
+                    .draw_detections = true,
+                };
+                cvops::InferenceResult result = cvops::InferenceResult{};
+                run_inference(mgr_ptr, &request, &result);
 
-            // Write results to file
-            size_t fname_start = image_name.find_last_of("//") + 1;
-            size_t fname_length = image_name.find_last_of(".") - fname_start;
-            std::string f_name = image_name.substr(fname_start, fname_length);
-            std::string f_path = output_path + "/" + f_name + ".png";
+                // Write results to file
+                size_t fname_start = image_name.find_last_of("//") + 1;
+                size_t fname_length = image_name.find_last_of(".") - fname_start;
+                std::string f_name = image_name.substr(fname_start, fname_length);
+                std::string f_path = output_path + "/" + f_name + ".png";
 
-            struct stat target_file;
+                struct stat target_file;
 
-            if (stat(f_path.c_str(), &target_file) == 0)
-                std::filesystem::remove(f_path);
+                if (stat(f_path.c_str(), &target_file) == 0)
+                    std::filesystem::remove(f_path);
 
-            std::ofstream out_file;
-            out_file.open (f_path);
-            out_file.write(reinterpret_cast<const char*>(result.image), result.image_size);
-            out_file.close();
+                std::ofstream out_file;
+                out_file.open (f_path);
+                out_file.write(reinterpret_cast<const char*>(result.image), result.image_size);
+                out_file.close();
+                delete buffer;
 
-            //for debugging
-            std::cout << "Number of objects detected: " << result.boxes_count << std::endl;
+
+                //for debugging
+                std::cout << "Number of objects detected: " << result.boxes_count << std::endl;
+            } catch (std::exception& ex) {
+                std::cout << "Error running inference on image: " << image_name << std::endl;
+                std::cout << ex.what() << std::endl;
+                const char* err = error_message();
+                std::string msg(err);
+                if (msg.length() > 0)
+                    std::cout << msg << std::endl;
+            }
         }
     } catch (const std::exception& e)
     {

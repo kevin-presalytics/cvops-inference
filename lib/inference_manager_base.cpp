@@ -20,6 +20,7 @@ namespace cvops {
         static Ort::Env ort_env = Ort::Env{ORT_LOGGING_LEVEL_WARNING, "InferenceManager"};
         Ort::SessionOptions session_options;
         session_options.SetIntraOpNumThreads(1);
+        session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
         std::vector<std::string> eps = Ort::GetAvailableProviders();
         bool is_cuda_available = std::find(eps.begin(), eps.end(), "CUDAExecutionProvider") != eps.end();
         if (is_cuda_available) {

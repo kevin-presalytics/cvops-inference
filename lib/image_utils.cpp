@@ -106,4 +106,17 @@ namespace cvops
     {
         return cv::Rect(box.x, box.y, box.width, box.height);
     }
+
+    void ImageUtils::write_to_file(const std::string& filename, const cv::Mat& image)
+    {
+        cv::imwrite(filename, image);
+    }
+
+    void ImageUtils::write_to_file(const std::string& filename, const char* image, int image_size)
+    {
+        std::vector<uchar> buf(image_size);
+        std::copy(image, image + image_size, buf.begin());
+        cv::Mat mat = cv::imdecode(buf, cv::IMREAD_UNCHANGED);
+        cv::imwrite(filename, mat);
+    }
 }

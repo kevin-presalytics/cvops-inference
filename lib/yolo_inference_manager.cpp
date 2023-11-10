@@ -32,8 +32,6 @@ namespace cvops
         double confidence_threshold = (double)*this->session_request.confidence_threshold;
         double nms_threshold = (double)*this->session_request.iou_threshold;
 
-        float* pdata = (float*)output_matrix.data;
-
         std::vector<int> class_ids;
         std::vector<float> confidences;
         std::vector<cv::Rect> boxes;
@@ -116,7 +114,14 @@ namespace cvops
         inputTensorShape[2] = resized_image.rows;
         inputTensorShape[3] = resized_image.cols;
 
+        // for debugging
+        ImageUtils::write_to_file("./tmp/resized_image.jpg", resized_image);    
+
         resized_image.convertTo(float_image, CV_32FC3, 1 / 255.0);
+
+        
+
+
         float* blob = new float[float_image.cols * float_image.rows * float_image.channels()];
         cv::Size floatImageSize {float_image.cols, float_image.rows};
 
@@ -128,7 +133,7 @@ namespace cvops
         }
         cv::split(float_image, chw);
 
-        size_t input_tensor_size = 1;;
+        size_t input_tensor_size = 1;
 
         for (const auto& element : inputTensorShape)
             input_tensor_size *= element;

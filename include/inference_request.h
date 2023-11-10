@@ -5,7 +5,7 @@ namespace cvops
 {
     struct InferenceRequest
     {
-        char* bytes;
+        unsigned char* bytes;
         char* name;
         int size;
         bool draw_detections;
