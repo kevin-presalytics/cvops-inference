@@ -13,6 +13,7 @@ extern "C" {
     cvops::IInferenceManager* start_inference_session(cvops::InferenceSessionRequest* request);
     void run_inference(cvops::IInferenceManager* inference_manager, cvops::InferenceRequest* inference_request, cvops::InferenceResult* inference_result);
     void end_inference_session(cvops::IInferenceManager* inference_manager);
+    void dispose_inference_result(cvops::InferenceResult* inference_result);
     const char* error_message();
 #ifdef __cplusplus
 }

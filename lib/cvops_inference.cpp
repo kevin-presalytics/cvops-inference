@@ -61,6 +61,14 @@ extern "C" {
         }
     }
 
+    void dispose_inference_result(cvops::InferenceResult* inference_result) {
+        try {
+            delete inference_result;
+        } catch (std::exception& ex) {
+            wrap_exception(ex);
+        }
+    }
+
     const char* error_message() {
         return err_msg.c_str();
     }

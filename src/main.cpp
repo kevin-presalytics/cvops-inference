@@ -154,7 +154,6 @@ int main(int argc, char** argv)
                 out_file.close();
                 delete buffer;
 
-
                 //for debugging
                 std::cout << "Number of objects detected: " << result.boxes_count << std::endl;
             } catch (std::exception& ex) {

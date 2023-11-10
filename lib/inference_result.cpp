@@ -1,5 +1,7 @@
 #include "inference_result.h"
 
+#include <iostream>
+
 namespace cvops
 {
     InferenceResult::InferenceResult() {
@@ -13,10 +15,18 @@ namespace cvops
 
     InferenceResult::~InferenceResult() {
         if (image != nullptr) {
-            delete image;
+            try {
+                delete image;
+            } catch (std::exception& ex) {
+                std::cout << ex.what() << std::endl;
+            }
         }
         if (boxes != nullptr) {
-            delete boxes;
+            try {
+                delete boxes;
+            } catch (std::exception& ex) {
+                std::cout << ex.what() << std::endl;
+            }
         }
     }
 }
