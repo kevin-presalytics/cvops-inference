@@ -38,10 +38,11 @@ namespace cvops {
     InferenceManagerBase::~InferenceManagerBase() {}
 
 
-    void InferenceManagerBase::infer(InferenceRequest* inference_request, InferenceResult* inference_result) {  // TODO: Add images to inference request
+    InferenceResult* InferenceManagerBase::infer(InferenceRequest* inference_request) {  // TODO: Add images to inference request
         cv::Mat image;
         ImageUtils::decode_image(inference_request, &image);
 
+        InferenceResult* inference_result = new InferenceResult();
         inference_result->image_height = image.rows;
         inference_result->image_width = image.cols;
 
@@ -83,6 +84,7 @@ namespace cvops {
         } else {
             inference_result->image = nullptr;
         }
+        return inference_result;
     }
 
     void InferenceManagerBase::get_input_names() {

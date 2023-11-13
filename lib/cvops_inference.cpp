@@ -34,10 +34,10 @@ extern "C" {
         }
     }
 
-    void run_inference(cvops::IInferenceManager* inference_manager, cvops::InferenceRequest* inference_request, cvops::InferenceResult* inference_result) 
+    cvops::InferenceResult* run_inference(cvops::IInferenceManager* inference_manager, cvops::InferenceRequest* inference_request) 
     {
         try {
-            inference_manager->infer(inference_request, inference_result);
+            return inference_manager->infer(inference_request);
         } catch (std::exception& ex) {
             wrap_exception(ex);
         }
