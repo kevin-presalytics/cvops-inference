@@ -3,8 +3,6 @@
 
 #include "inference_request.h"
 
-#include <vector>
-
 namespace cvops {
     struct Box {
         int x;

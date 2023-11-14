@@ -98,8 +98,8 @@ int main(int argc, char** argv)
         cvops::InferenceSessionRequest session_request = cvops::InferenceSessionRequest{};
         session_request.model_platform = cvops::ModelPlatforms::YOLO;
         session_request.model_path = model_path_;
-        session_request.confidence_threshold = &confidence_threshold;
-        session_request.iou_threshold = &iou_threshold;
+        session_request.confidence_threshold = confidence_threshold;
+        session_request.iou_threshold = iou_threshold;
         session_request.metadata = (char*)metadata.c_str();
         
 

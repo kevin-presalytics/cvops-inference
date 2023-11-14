@@ -14,16 +14,9 @@ namespace cvops
     }
 
     InferenceResult::~InferenceResult() {
-        if (image != nullptr) {
+        if (boxes) {
             try {
-                delete image;
-            } catch (std::exception& ex) {
-                std::cout << ex.what() << std::endl;
-            }
-        }
-        if (boxes != nullptr) {
-            try {
-                delete boxes;
+                delete [] boxes;
             } catch (std::exception& ex) {
                 std::cout << ex.what() << std::endl;
             }

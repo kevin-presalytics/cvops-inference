@@ -29,8 +29,8 @@ namespace cvops
         // Read tensor in to matrix and transpose (only for YOLOv8 models)
         cv::Mat output_matrix = cv::Mat(detection_resultant_size, output_rows, CV_32F, output_data).t();
 
-        double confidence_threshold = (double)*this->session_request.confidence_threshold;
-        double nms_threshold = (double)*this->session_request.iou_threshold;
+        double confidence_threshold = (double)this->session_request.confidence_threshold;
+        double nms_threshold = (double)this->session_request.iou_threshold;
 
         std::vector<int> class_ids;
         std::vector<float> confidences;
@@ -77,16 +77,35 @@ namespace cvops
         }
 
         std::vector<int> nms_result;
-
-        // Remove overlapping boxes
-		cv::dnn::NMSBoxes(boxes, confidences, confidence_threshold, nms_threshold, nms_result);
-
-        inference_result->boxes = new Box[nms_result.size()];
-        inference_result->boxes_count = nms_result.size();
-
-        for (int j = 0; j < nms_result.size(); j++)
+        // Correct invalid user thresholds
+        if (confidence_threshold < 0 || confidence_threshold > 1)
         {
-            int idx = nms_result[j];
+            confidence_threshold = 0.5;
+        }
+        if (nms_threshold < 0 || nms_threshold > 1)
+        {
+            nms_threshold = 0.4;
+        }
+        try {
+            // Removes overlapping boxes
+            cv::dnn::NMSBoxes(boxes, confidences, confidence_threshold, nms_threshold, nms_result);
+            inference_result->boxes = new Box[nms_result.size()];
+            inference_result->boxes_count = nms_result.size();
+        } catch (std::exception& ex) {
+            // NMBSBoxes throws an exception if no boxes are found
+            std::cout << ex.what() << std::endl;
+            inference_result->boxes = new Box[boxes.size()];
+            inference_result->boxes_count = boxes.size();
+        }
+        
+
+        for (int j = 0; j < inference_result->boxes_count; j++)
+        {
+            int idx = j;
+            if (nms_result.size() > 0)
+            {
+                idx = nms_result[j];
+            }
             std::string class_name = this->metadata["classes"][std::to_string(class_ids[idx])].asString();
             inference_result->boxes[j].x = boxes[idx].x;
             inference_result->boxes[j].y = boxes[idx].y;

@@ -8,8 +8,8 @@ namespace cvops {
         ModelPlatforms model_platform;
         char* model_path;
         char* metadata;
-        float* confidence_threshold;
-        float* iou_threshold;
+        float confidence_threshold;
+        float iou_threshold;
     };
 }
 
