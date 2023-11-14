@@ -29,8 +29,8 @@ namespace cvops
         // Read tensor in to matrix and transpose (only for YOLOv8 models)
         cv::Mat output_matrix = cv::Mat(detection_resultant_size, output_rows, CV_32F, output_data).t();
 
-        double confidence_threshold = (double)*this->session_request.confidence_threshold;
-        double nms_threshold = (double)*this->session_request.iou_threshold;
+        double confidence_threshold = (double)this->session_request.confidence_threshold;
+        double nms_threshold = (double)this->session_request.iou_threshold;
 
         std::vector<int> class_ids;
         std::vector<float> confidences;
