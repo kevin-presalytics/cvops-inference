@@ -20,7 +20,7 @@ namespace cvops {
         public:
             InferenceManagerBase() : IInferenceManager() {};
             virtual void start_session(InferenceSessionRequest* session_request_ptr);
-            virtual void infer(InferenceRequest* request, InferenceResult* result);
+            virtual InferenceResult* infer(InferenceRequest* request);
             virtual ~InferenceManagerBase();
 
         protected:

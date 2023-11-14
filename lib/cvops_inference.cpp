@@ -34,13 +34,16 @@ extern "C" {
         }
     }
 
-    void run_inference(cvops::IInferenceManager* inference_manager, cvops::InferenceRequest* inference_request, cvops::InferenceResult* inference_result) 
+    cvops::InferenceResult* run_inference(cvops::IInferenceManager* inference_manager, cvops::InferenceRequest* inference_request) 
     {
+        cvops::InferenceResult* inference_result = nullptr;
         try {
-            inference_manager->infer(inference_request, inference_result);
+            inference_result = inference_manager->infer(inference_request);
         } catch (std::exception& ex) {
             wrap_exception(ex);
+            return nullptr;
         }
+        return inference_result;
     }
 
     void end_inference_session(cvops::IInferenceManager* inference_manager) {

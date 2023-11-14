@@ -13,30 +13,6 @@
 #include <sys/stat.h>
 #include <opencv2/opencv.hpp>
 
-void command_line_inference(std::string model_path, std::string image_dir, std::string output_path)
-{
-        // Start inference session
-    cvops::InferenceSessionRequest session_request= cvops::InferenceSessionRequest();
-    session_request.model_platform = cvops::ModelPlatforms::YOLO;
-    session_request.model_path = (char*)model_path.c_str();
-    cvops::IInferenceManager* mgr_ptr = start_inference_session(&session_request);
-
-    // Run inference
-    cvops::InferenceRequest request = cvops::InferenceRequest();
-    cvops::InferenceResult result = cvops::InferenceResult();
-
-    request.bytes = 0;  //TODO: Add image bytes to request
-    run_inference(mgr_ptr, &request, &result); 
-
-    // Print results
-    int objects = result.boxes_count;
-    std::cout << "Number of objects detected: " << objects << std::endl;
-
-    // Clean up
-    delete mgr_ptr;
-    delete &result;
-    mgr_ptr = NULL;
-}
 
 size_t getFilesize(const char* filename) {
     struct stat st;
@@ -134,8 +110,7 @@ int main(int argc, char** argv)
                     .size = (int)buf_size,
                     .draw_detections = true,
                 };
-                cvops::InferenceResult result = cvops::InferenceResult{};
-                run_inference(mgr_ptr, &request, &result);
+                cvops::InferenceResult* result = run_inference(mgr_ptr, &request);
 
                 // Write results to file
                 size_t fname_start = image_name.find_last_of("//") + 1;
@@ -150,12 +125,12 @@ int main(int argc, char** argv)
 
                 std::ofstream out_file;
                 out_file.open (f_path);
-                out_file.write(reinterpret_cast<const char*>(result.image), result.image_size);
+                out_file.write(reinterpret_cast<const char*>(result->image), result->image_size);
                 out_file.close();
                 delete buffer;
 
                 //for debugging
-                std::cout << "Number of objects detected: " << result.boxes_count << std::endl;
+                std::cout << "Number of objects detected: " << result->boxes_count << std::endl;
             } catch (std::exception& ex) {
                 std::cout << "Error running inference on image: " << image_name << std::endl;
                 std::cout << ex.what() << std::endl;
