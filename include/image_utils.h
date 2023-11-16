@@ -1,3 +1,6 @@
+#ifndef IMAGE_UTILS_H
+#define IMAGE_UTILS_H
+
 #include "inference_result.h"
 #include "inference_request.h"
 
@@ -28,3 +31,5 @@ namespace cvops
             ImageUtils() = delete;
     };
 }
+
+#endif // IMAGE_UTILS_H

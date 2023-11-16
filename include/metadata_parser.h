@@ -15,7 +15,10 @@ namespace cvops
             static std::map<int, std::string> get_class_names(Json::Value metadata);
             static cv::Size get_image_size(Json::Value metadata);
             static Json::Value parse_metadata(char* data);
+            static std::vector<cv::Scalar> parse_color_palette(char* data);
+            static std::vector<cv::Scalar> parse_color_palette(Json::Value metadata);
             MetadataParser() = delete;
+
     };
 }
 

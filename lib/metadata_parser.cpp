@@ -53,4 +53,36 @@ namespace cvops
         }
         return metadata;
     }
+
+    std::vector<cv::Scalar> MetadataParser::parse_color_palette(char* data)
+    {
+        Json::Value metadata = parse_metadata(data);
+        return parse_color_palette(metadata);
+    }
+
+    std::vector<cv::Scalar> MetadataParser::parse_color_palette(Json::Value metadata)
+    {
+        std::vector<cv::Scalar> color_palette;
+        if (metadata["color_palette"].empty())
+        {
+            for (int i = 0; i < metadata["classes"].size(); i++)
+            {
+                cv::Scalar color(rand() % 255, rand() % 255, rand() % 255);
+                color_palette.push_back(color);
+            }
+        }
+        else
+        {
+            if (metadata["color_palette"].size() != metadata["classes"].size())
+            {
+                throw std::length_error("color_palette must be the same length as classes");
+            }
+            for (const auto& element : metadata["color_palette"])
+            {
+                cv::Scalar color(element[0].asInt(), element[1].asInt(), element[2].asInt());
+                color_palette.push_back(color);
+            }
+        }
+        return color_palette;
+    }
 }

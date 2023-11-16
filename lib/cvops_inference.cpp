@@ -5,8 +5,11 @@
 #include "inference_result.h"
 #include "inference_request.h"
 #include "inference_session_request.h"
+#include "image_utils.h"
+#include "metadata_parser.h"
 
 #include <memory>
+#include <opencv2/opencv.hpp>
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,6 +62,33 @@ extern "C" {
                 }
             }
             delete inference_manager;
+        } catch (std::exception& ex) {
+            wrap_exception(ex);
+        }
+    }
+
+    std::shared_ptr<std::vector<cv::Scalar>> cv_colors = nullptr;
+
+    void set_color_palette(char* color_palette) {
+        std::vector<cv::Scalar> palette = cvops::MetadataParser::parse_color_palette(color_palette);
+        cv_colors = std::make_shared<std::vector<cv::Scalar>>(palette);
+    }
+
+    void free_color_palette() {
+        cv_colors->clear();
+        cv_colors = nullptr;
+    }
+
+    void draw_inference_result(cvops::InferenceResult* inference_result, cv::Mat* raw_image) 
+    {
+        cvops::ImageUtils::draw_detections(raw_image, inference_result, cv_colors.get());
+    }
+
+    void dispose_inference_result(cvops::InferenceResult* inference_result) {
+        try
+        {
+            if (inference_result)
+                delete inference_result;
         } catch (std::exception& ex) {
             wrap_exception(ex);
         }
