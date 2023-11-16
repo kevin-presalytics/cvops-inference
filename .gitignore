@@ -4,6 +4,5 @@ cmake_install.*
 CMakeCache.txt
 Makefile
 _deps
-models/
 out/
 install_manifest.txt
