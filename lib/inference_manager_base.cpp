@@ -9,13 +9,15 @@
 #include <jsoncpp/json/json.h>
 
 #include <iostream>
+#include <filesystem>
 #include <memory>
 #include <mutex>
 #include <vector>
 
 namespace cvops {
     void InferenceManagerBase::start_session(InferenceSessionRequest* session_request_ptr) {
-        std::cout << "Starting inference session..." << std::endl;
+        // std::cout << "Starting inference session..." << std::endl;
+        validate_session_request(session_request_ptr);
         session_request = *session_request_ptr;
         static Ort::Env ort_env = Ort::Env{ORT_LOGGING_LEVEL_WARNING, "InferenceManager"};
         Ort::SessionOptions session_options;
@@ -128,6 +130,25 @@ namespace cvops {
                 cv::Scalar color(element[0].asInt(), element[1].asInt(), element[2].asInt());
                 this->color_palette_.push_back(color);
             }
+        }
+    }
+
+    void InferenceManagerBase::validate_session_request(InferenceSessionRequest* session_request_ptr) {
+        if (session_request_ptr->model_path == nullptr) {
+            throw std::invalid_argument("Model path is required");
+        }
+        if (session_request_ptr->metadata == nullptr) {
+            throw std::invalid_argument("Metadata is required");
+        }
+        if (session_request_ptr->confidence_threshold < 0 || session_request_ptr->confidence_threshold > 1) {
+            throw std::invalid_argument("Confidence threshold must be between 0 and 1");
+        }
+        if (session_request_ptr->iou_threshold < 0 || session_request_ptr->iou_threshold > 1) {
+            throw std::invalid_argument("IOU threshold (for NMS Boxes Calculations) must be between 0 and 1");
+        }
+        std::filesystem::path model_path = session_request_ptr->model_path;
+        if (!std::filesystem::exists(model_path)) {
+            throw std::invalid_argument("User-supplied model path does not exist");
         }
     }
 }

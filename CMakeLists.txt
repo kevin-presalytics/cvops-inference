@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.15)
 set (CMAKE_CXX_FLAGS "-lstdc++fs -std=c++17")
 
 # Global settings
-set(GLOBAL_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/build)
+set(GLOBAL_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build)
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 
 # Sets global output directory for single configuration (GCC)
@@ -13,9 +13,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${GLOBAL_OUTPUT_PATH})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${GLOBAL_OUTPUT_PATH})
 set(EXECUTABLE_OUTPUT_PATH ${GLOBAL_OUTPUT_PATH})
 set(LIBRARY_OUTPUT_DIRECTORY ${GLOBAL_OUTPUT_PATH})
-set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
-set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
-set(LIB_DIR ${CMAKE_SOURCE_DIR}/lib)
+set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 project(cvops_inference)
 
@@ -68,9 +68,9 @@ set_target_properties(cvops_inference PROPERTIES
     OUTPUT_NAME cvops
 )
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/external/opencv)
-add_subdirectory(${CMAKE_SOURCE_DIR}/external/onnx)
-add_subdirectory(${CMAKE_SOURCE_DIR}/external/jsoncpp)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/opencv)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/onnx)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/jsoncpp)
 
 install(
     TARGETS cvops_inference C_API

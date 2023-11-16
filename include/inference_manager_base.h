@@ -20,7 +20,7 @@ namespace cvops {
         public:
             InferenceManagerBase() : IInferenceManager() {};
             virtual void start_session(InferenceSessionRequest* session_request_ptr);
-            virtual InferenceResult* infer(InferenceRequest* request, InferenceResult* result);
+            virtual InferenceResult* infer(InferenceRequest* request);
             virtual ~InferenceManagerBase();
 
         protected:
@@ -41,6 +41,7 @@ namespace cvops {
             void get_output_names();
             void get_metadata(char* metadata_json_ptr);
             void get_color_palette();
+            void validate_session_request(InferenceSessionRequest* session_request_ptr);
     };
 }
 
