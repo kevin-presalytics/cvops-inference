@@ -119,4 +119,32 @@ namespace cvops
         cv::Mat mat = cv::imdecode(buf, cv::IMREAD_UNCHANGED);
         cv::imwrite(filename, mat);
     }
+
+    void ImageUtils::resize_and_pad_image(const cv::Mat& input_image, cv::Mat& resized_image, cv::Size target_size)
+    {
+        float resizeScales = 1.0;
+        if (input_image.channels() == 3)
+        {
+            resized_image = input_image.clone();
+            cv::cvtColor(resized_image, resized_image, cv::COLOR_BGR2RGB);
+        }
+        else
+        {
+            cv::cvtColor(input_image, resized_image, cv::COLOR_GRAY2RGB);
+        }
+
+        if (input_image.cols >= input_image.rows)
+        {
+            resizeScales = input_image.cols / (float)target_size.width;
+            cv::resize(resized_image, resized_image, cv::Size(target_size.width, int(input_image.rows / resizeScales)));
+        }
+        else
+        {
+            resizeScales = input_image.rows / (float)target_size.height;
+            cv::resize(resized_image, resized_image, cv::Size(int(input_image.cols / resizeScales), target_size.height));
+        }
+        cv::Mat tempImg = cv::Mat::zeros(target_size, CV_8UC3);
+        resized_image.copyTo(tempImg(cv::Rect(0, 0, resized_image.cols, resized_image.rows)));
+        resized_image = tempImg;
+    }
 }

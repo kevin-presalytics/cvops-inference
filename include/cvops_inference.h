@@ -16,7 +16,7 @@ extern "C" {
     cvops::InferenceResult* run_inference(cvops::IInferenceManager* inference_manager, cvops::InferenceRequest* inference_request);
     void end_inference_session(cvops::IInferenceManager* inference_manager);
     void dispose_inference_result(cvops::InferenceResult* inference_result);
-    void draw_inference_result(cvops::InferenceResult* inference_result, cv::Mat* raw_image);
+    void render_inference_result(cvops::InferenceResult* inference_result, void* image_data, int image_height, int image_width, int num_channels);
     void free_color_palette();
     void set_color_palette(char* color_palette);    
     const char* error_message();

@@ -26,7 +26,6 @@ extern "C" {
 
     cvops::IInferenceManager* start_inference_session(cvops::InferenceSessionRequest* request) { 
         try {
-            std::cout << "Starting inference session..." << std::endl;
             std::unique_ptr<cvops::InferenceManagerFactory> factory = std::make_unique<cvops::InferenceManagerFactory>();
             std::shared_ptr<cvops::IInferenceManager> manager = factory->create_inference_manager(request);
             managers.push_back(manager);
@@ -51,17 +50,18 @@ extern "C" {
 
     void end_inference_session(cvops::IInferenceManager* inference_manager) {
         try {
-            std::cout << "Ending inference session..." << std::endl;
+            // For debugging
+            //std::cout << "Ending inference session..." << std::endl;
             size_t manager_count = managers.size();
             for (int i = 0; i < manager_count; i++)
             {
                 std::shared_ptr<cvops::IInferenceManager> manager = managers[i];
                 if (manager.get() == inference_manager) {
+                    // Smart pointer deletes inference manager after this block
                     managers.erase(managers.begin() + i);
                     break;
                 }
             }
-            delete inference_manager;
         } catch (std::exception& ex) {
             wrap_exception(ex);
         }
@@ -79,9 +79,15 @@ extern "C" {
         cv_colors = nullptr;
     }
 
-    void draw_inference_result(cvops::InferenceResult* inference_result, cv::Mat* raw_image) 
+    void render_inference_result(cvops::InferenceResult* inference_result, void* image_data, int image_height, int image_width, int num_channels) 
     {
-        cvops::ImageUtils::draw_detections(raw_image, inference_result, cv_colors.get());
+        int cv_data_type = CV_8UC3;
+        if (num_channels == 1)
+            cv_data_type = CV_8UC1;
+        if (num_channels == 4)
+            cv_data_type = CV_8UC4;
+        cv::Mat raw_image(image_height, image_width, cv_data_type, image_data);
+        cvops::ImageUtils::draw_detections(&raw_image, inference_result, cv_colors.get());
     }
 
     void dispose_inference_result(cvops::InferenceResult* inference_result) {

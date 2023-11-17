@@ -13,6 +13,7 @@
 #include <memory>
 #include <mutex>
 #include <vector>
+#include <chrono>
 
 namespace cvops {
     void InferenceManagerBase::start_session(InferenceSessionRequest* session_request_ptr) {
@@ -37,7 +38,10 @@ namespace cvops {
         get_color_palette();
     }
 
-    InferenceManagerBase::~InferenceManagerBase() {}
+    InferenceManagerBase::~InferenceManagerBase() {
+        // For debugging
+        // std::cout << "Inference Session Destroyed" << std::endl;
+    }
 
 
     InferenceResult* InferenceManagerBase::infer(InferenceRequest* inference_request) {  // TODO: Add images to inference request
@@ -45,6 +49,7 @@ namespace cvops {
         ImageUtils::decode_image(inference_request, &image);
 
         InferenceResult* inference_result = new InferenceResult();
+        auto start = std::chrono::high_resolution_clock::now();
         inference_result->image_height = image.rows;
         inference_result->image_width = image.cols;
 
@@ -86,6 +91,8 @@ namespace cvops {
         } else {
             inference_result->image = nullptr;
         }
+        auto end = std::chrono::high_resolution_clock::now();
+        inference_result->milliseconds = std::chrono::duration<float, std::milli>(end - start).count();
         return inference_result;
     }
 

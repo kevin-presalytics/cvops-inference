@@ -20,6 +20,11 @@ namespace cvops
                 const cv::Scalar& color = cv::Scalar(114, 114, 114),
                 int stride = 32
             );
+            static void resize_and_pad_image(
+                const cv::Mat& input_image, 
+                cv::Mat& resized_image,
+                cv::Size target_size
+            );
             static void decode_image(InferenceRequest* inference_request, cv::Mat* image);
             static void draw_detections(cv::Mat* image, InferenceResult* inference_result, std::vector<cv::Scalar>* color_palette_ptr);
             static void resize_rect(cv::Rect* rect, cv::Size* current_image_size, cv::Size* target_image_size);

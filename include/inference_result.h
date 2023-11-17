@@ -22,6 +22,7 @@ namespace cvops {
         int image_size;
         int image_width;
         int image_height;
+        float milliseconds;
         InferenceResult();
         ~InferenceResult();
     };

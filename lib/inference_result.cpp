@@ -11,6 +11,7 @@ namespace cvops
         image_size = 0;
         image_height = 0;
         image_width = 0;
+        milliseconds = 0.0f;
     }
 
     InferenceResult::~InferenceResult() {

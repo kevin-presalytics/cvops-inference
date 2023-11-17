@@ -11,11 +11,31 @@
 #include <vector>
 
 
+template<typename T>
+void image_to_blob(cv::Mat& image, T &blob) {
+    int channels = image.channels();
+    int height = image.rows;
+    int width = image.cols;
+
+    for (int c = 0; c < channels; c++) {
+        for (int h = 0; h < height; h++) {
+            for (int w = 0; w < width; w++) {
+                blob[c * width * height + h * width + w] = typename std::remove_pointer<T>::type(
+                        (image.at<cv::Vec3b>(h, w)[c]) / 255.0f);
+            }
+        }
+    }
+}
+
+
 namespace cvops
 {
+    
+
     void YoloInferenceManager::post_process(std::vector<Ort::Value>* output_tensor, InferenceResult* inference_result) 
     {
-        std::cout << "Post processing YOLO inference result..." << std::endl;
+        // For debugging
+        // std::cout << "Post processing YOLO inference result..." << std::endl;
 
         auto* output_begin_ptr = (*output_tensor)[0].GetTensorData<float>();
 
@@ -122,24 +142,19 @@ namespace cvops
     }
     
     void YoloInferenceManager::pre_process(InferenceRequest* inference_request, cv::Mat* image, std::vector<Ort::Value>* input_tensor) { // TODO: write pre processing code
-        std::cout << "Pre processing YOLO inference request..." << std::endl;
+        // For Debugging
+        // std::cout << "Pre processing YOLO inference request..." << std::endl;
         cv::Mat resized_image, float_image, recolored_image;
-        cv::cvtColor(*image, recolored_image, cv::COLOR_BGR2RGB);
+
         std::vector<int64_t> inputTensorShape {1, 3, -1, -1};
         
         cv::Size model_default_size = MetadataParser::get_image_size(this->metadata);
         ImageUtils::resize_and_letterbox_image(recolored_image, resized_image, model_default_size);
 
         inputTensorShape[2] = resized_image.rows;
-        inputTensorShape[3] = resized_image.cols;
-
-        // for debugging
-        ImageUtils::write_to_file("./tmp/resized_image.jpg", resized_image);    
+        inputTensorShape[3] = resized_image.cols;  
 
         resized_image.convertTo(float_image, CV_32FC3, 1 / 255.0);
-
-        
-
 
         float* blob = new float[float_image.cols * float_image.rows * float_image.channels()];
         cv::Size floatImageSize {float_image.cols, float_image.rows};
