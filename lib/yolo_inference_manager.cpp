@@ -148,12 +148,11 @@ namespace cvops
 
         std::vector<int64_t> input_tensor_shape = {1, 3, model_default_size.height, model_default_size.width};
 
-        size_t blob_size = input_image.cols * input_image.rows * 3;
-        
         // 3 channels: model takes colored images, not grayscale
-        std::unique_ptr<float[]> blob(new float[blob_size]);
+        size_t blob_size = input_image.cols * input_image.rows * 3;
 
-        //std::vector<float> input = std::vector<float>(blob, blob + blob_size);
+        // allocate memory for blob
+        std::unique_ptr<float[]> blob(new float[blob_size]);
 
         // transfer image to blob
         image_to_blob(input_image, blob);
