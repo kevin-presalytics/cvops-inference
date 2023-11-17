@@ -26,7 +26,7 @@ namespace cvops {
         protected:
             // override in class implementations
             virtual void post_process(std::vector<Ort::Value>* output_tensor, InferenceResult* inference_result) = 0;
-            virtual void pre_process(InferenceRequest* inference_request, cv::Mat* input_image, std::vector<Ort::Value>* input_tensor) = 0;
+            virtual void pre_process(InferenceRequest* inference_request, cv::Mat* input_image, std::shared_ptr<Ort::Value> input_tensor) = 0;
 
             // class properties
             InferenceSessionRequest session_request;

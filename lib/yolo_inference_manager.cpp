@@ -20,8 +20,7 @@ void image_to_blob(cv::Mat& image, T &blob) {
     for (int c = 0; c < channels; c++) {
         for (int h = 0; h < height; h++) {
             for (int w = 0; w < width; w++) {
-                blob[c * width * height + h * width + w] = typename std::remove_pointer<T>::type(
-                        (image.at<cv::Vec3b>(h, w)[c]) / 255.0f);
+                blob[c * width * height + h * width + w] = image.at<cv::Vec3b>(h, w)[c] / 255.0f;
             }
         }
     }
@@ -30,8 +29,6 @@ void image_to_blob(cv::Mat& image, T &blob) {
 
 namespace cvops
 {
-    
-
     void YoloInferenceManager::post_process(std::vector<Ort::Value>* output_tensor, InferenceResult* inference_result) 
     {
         // For debugging
@@ -141,46 +138,35 @@ namespace cvops
         }
     }
     
-    void YoloInferenceManager::pre_process(InferenceRequest* inference_request, cv::Mat* image, std::vector<Ort::Value>* input_tensor) { // TODO: write pre processing code
+    void YoloInferenceManager::pre_process(InferenceRequest* inference_request, cv::Mat* image, std::shared_ptr<Ort::Value> input_tensor) { // TODO: write pre processing code
         // For Debugging
         // std::cout << "Pre processing YOLO inference request..." << std::endl;
-        cv::Mat resized_image, float_image, recolored_image;
-
-        std::vector<int64_t> inputTensorShape {1, 3, -1, -1};
-        
+        cv::Mat input_image;
         cv::Size model_default_size = MetadataParser::get_image_size(this->metadata);
-        ImageUtils::resize_and_letterbox_image(recolored_image, resized_image, model_default_size);
 
-        inputTensorShape[2] = resized_image.rows;
-        inputTensorShape[3] = resized_image.cols;  
+        ImageUtils::resize_and_pad_image(*image, input_image, model_default_size);
 
-        resized_image.convertTo(float_image, CV_32FC3, 1 / 255.0);
+        std::vector<int64_t> input_tensor_shape = {1, 3, model_default_size.height, model_default_size.width};
 
-        float* blob = new float[float_image.cols * float_image.rows * float_image.channels()];
-        cv::Size floatImageSize {float_image.cols, float_image.rows};
+        size_t blob_size = input_image.cols * input_image.rows * 3;
+        
+        // 3 channels: model takes colored images, not grayscale
+        std::unique_ptr<float[]> blob(new float[blob_size]);
 
-        // hwc -> chw
-        std::vector<cv::Mat> chw(float_image.channels());
-        for (int i = 0; i < float_image.channels(); ++i)
-        {
-            chw[i] = cv::Mat(floatImageSize, CV_32FC1, blob + i * floatImageSize.width * floatImageSize.height);
-        }
-        cv::split(float_image, chw);
+        //std::vector<float> input = std::vector<float>(blob, blob + blob_size);
 
-        size_t input_tensor_size = 1;
+        // transfer image to blob
+        image_to_blob(input_image, blob);
 
-        for (const auto& element : inputTensorShape)
-            input_tensor_size *= element;
-
-        std::vector<float> inputTensorValues(blob, blob + input_tensor_size);
-
-
-        Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(
+        Ort::MemoryInfo mem_info = Ort::MemoryInfo::CreateCpu(
                 OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
 
-        input_tensor->push_back(Ort::Value::CreateTensor<float>(
-                memoryInfo, inputTensorValues.data(), input_tensor_size,
-                inputTensorShape.data(), inputTensorShape.size()
-        ));
+        *input_tensor = Ort::Value::CreateTensor<float>(
+            mem_info, 
+            blob.get(), 
+            blob_size,
+            input_tensor_shape.data(), 
+            input_tensor_shape.size()
+        );
     }
 }

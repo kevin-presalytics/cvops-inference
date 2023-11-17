@@ -89,11 +89,11 @@ namespace cvops
                         (float)target_image_size->width / (float)current_image_size->width);
 
 
-        float pad_x = std::round(((float)target_image_size->width - (float)current_image_size->width * r) * 0.5f);
-        float pad_y = std::round(((float)target_image_size->height - (float)current_image_size->height * r) * 0.5f);
+        // float pad_x = std::round(((float)target_image_size->width - (float)current_image_size->width * r) * 0.5f);
+        // float pad_y = std::round(((float)target_image_size->height - (float)current_image_size->height * r) * 0.5f);
 
-        rect->x = (int)(rect->x * r + pad_x);
-        rect->y = (int)(rect->y * r + pad_y);
+        rect->x = (int)(rect->x * r);
+        rect->y = (int)(rect->y * r);
         rect->width = (int)(rect->width * r);
         rect->height = (int)(rect->height * r);
     }

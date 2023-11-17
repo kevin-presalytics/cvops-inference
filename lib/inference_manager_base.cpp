@@ -53,8 +53,8 @@ namespace cvops {
         inference_result->image_height = image.rows;
         inference_result->image_width = image.cols;
 
-        std::vector<Ort::Value> input_tensor;
-        this->pre_process(inference_request, &image, &input_tensor);
+        std::shared_ptr<Ort::Value> input_tensor = std::make_shared<Ort::Value>(nullptr);
+        this->pre_process(inference_request, &image, input_tensor);
 
         std::vector<const char*> input_names_array;
 
@@ -73,11 +73,12 @@ namespace cvops {
         std::vector<Ort::Value> output_tensor = session->Run(
             Ort::RunOptions{nullptr},
             input_names,
-            input_tensor.data(),
+            input_tensor.get(),
             session->GetInputCount(),
             output_names,
             session->GetOutputCount()
         );
+
 
         this->post_process(&output_tensor, inference_result);
         if (inference_request->draw_detections) {

@@ -14,7 +14,7 @@ namespace cvops
             YoloInferenceManager() : InferenceManagerBase() {}
         protected:
             virtual void post_process(std::vector<Ort::Value>* output_tensor, InferenceResult* inference_result);
-            virtual void pre_process(InferenceRequest* inference_request, cv::Mat* input_image, std::vector<Ort::Value>* input_tensor);
+            virtual void pre_process(InferenceRequest* inference_request, cv::Mat* input_image, std::shared_ptr<Ort::Value> input_tensor);
     };
 }
 
