@@ -36,10 +36,12 @@ set_target_properties(ONNX_RUNTIME PROPERTIES
 )
 
 target_link_libraries(C_API ONNX_RUNTIME)
+target_link_libraries(RENDERING_API ONNX_RUNTIME)
 target_link_libraries(cvops_inference ONNX_RUNTIME)
 
 target_include_directories(cvops_inference PRIVATE ${ONNX_INCLUDE_DIR})
 target_include_directories(C_API PRIVATE ${ONNX_INCLUDE_DIR})
+target_include_directories(RENDERING_API PRIVATE ${ONNX_INCLUDE_DIR})
 
 install(
     FILES 

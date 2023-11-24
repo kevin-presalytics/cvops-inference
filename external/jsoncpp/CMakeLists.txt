@@ -5,3 +5,4 @@ link_libraries(${JSONCPP_LIBRARIES})
 
 target_link_libraries(cvops_inference ${JSONCPP_LIBRARIES})
 target_link_libraries(C_API ${JSONCPP_LIBRARIES})
+target_link_libraries(RENDERING_API ${JSONCPP_LIBRARIES})

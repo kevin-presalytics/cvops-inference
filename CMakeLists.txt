@@ -47,12 +47,25 @@ add_library(C_API SHARED
     ${HEADER_FILES}
 )
 
+add_library(RENDERING_API SHARED
+    ${LIBRARY_FILES}
+    ${HEADER_FILES}
+)
+
 target_include_directories(C_API PUBLIC ${INCLUDE_DIR})
+target_include_directories(RENDERING_API PUBLIC ${INCLUDE_DIR})
 
 set_target_properties(C_API 
     PROPERTIES
         VERSION 1.0.0
         OUTPUT_NAME cvops
+        PUBLIC_HEADER ${INCLUDE_DIR}/cvops_inference.h
+)
+
+set_target_properties(RENDERING_API 
+    PROPERTIES
+        VERSION 1.0.0
+        OUTPUT_NAME cvopsrendering
         PUBLIC_HEADER ${INCLUDE_DIR}/cvops_inference.h
 )
 
