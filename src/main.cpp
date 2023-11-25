@@ -103,13 +103,12 @@ int main(int argc, char** argv)
                 strcpy(image_name_, image_name.c_str());
 
                 
+                cvops::InferenceRequest request = cvops::InferenceRequest(); 
+                request.bytes = buffer;
+                request.name = image_name_;
+                request.size = (int)buf_size;
+                request.draw_detections = true;
 
-                cvops::InferenceRequest request = cvops::InferenceRequest{
-                    .bytes = buffer,
-                    .name = image_name_,
-                    .size = (int)buf_size,
-                    .draw_detections = true,
-                };
                 cvops::InferenceResult* result = run_inference(mgr_ptr, &request);
 
                 // Write results to file

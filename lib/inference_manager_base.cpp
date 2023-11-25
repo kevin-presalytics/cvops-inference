@@ -46,7 +46,12 @@ namespace cvops {
 
     InferenceResult* InferenceManagerBase::infer(InferenceRequest* inference_request) {  // TODO: Add images to inference request
         cv::Mat image;
-        ImageUtils::decode_image(inference_request, &image);
+        try {
+            ImageUtils::decode_image(inference_request, &image);
+        } catch (std::exception& ex) {
+            std::string err_msg = "Unable to decode image inside infer method: " + std::string(ex.what());
+            throw std::runtime_error(err_msg);
+        }
 
         InferenceResult* inference_result = new InferenceResult();
         auto start = std::chrono::high_resolution_clock::now();

@@ -39,11 +39,22 @@ extern "C" {
     cvops::InferenceResult* run_inference(cvops::IInferenceManager* inference_manager, cvops::InferenceRequest* inference_request) 
     {
         cvops::InferenceResult* inference_result = nullptr;
-        try {
-            inference_result = inference_manager->infer(inference_request);
-        } catch (std::exception& ex) {
-            wrap_exception(ex);
-            return nullptr;
+        if (inference_request && inference_manager)
+        {
+            try {
+                if (!(inference_request->bytes))
+                    throw std::runtime_error("Inference request bytes are null");
+                if (!(inference_request->name))
+                    throw std::runtime_error("Inference request name is null");
+                if (!(inference_request->size))
+                    throw std::runtime_error("Inference request size is null");
+                if (inference_request->size <= 0)
+                    throw std::runtime_error("Inference request size is less than or equal to zero");
+            
+                inference_result = inference_manager->infer(inference_request);
+            } catch (std::exception& ex) {
+                wrap_exception(ex);
+            }
         }
         return inference_result;
     }

@@ -40,6 +40,7 @@ set(LIBRARY_FILES
     ${LIB_DIR}/inference_result.cpp
     ${LIB_DIR}/metadata_parser.cpp
     ${LIB_DIR}/image_utils.cpp
+    ${LIB_DIR}/inference_request.cpp
 )
 
 add_library(C_API SHARED

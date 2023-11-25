@@ -9,6 +9,8 @@ namespace cvops
         char* name;
         int size;
         bool draw_detections;
+        InferenceRequest();
+        ~InferenceRequest();
     };
 }
 
