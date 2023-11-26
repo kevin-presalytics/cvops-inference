@@ -4,7 +4,7 @@ include(FetchContent)
 set(ONNX_DIR ${CMAKE_SOURCE_DIR}/build/external/onnxruntime)
 set(ONNX_DOWNLOAD_DIR ${ONNX_DIR}/download)
 set(ONNX_PLATFORM "linux-x64")
-set(ONNX_VERSION 1.16.1)
+set(ONNX_VERSION 1.12.1)
 set(ONNX_RUNTIME_IDENTIFIER onnxruntime-${ONNX_PLATFORM}-${ONNX_VERSION})
 set(ONNX_URL https://github.com/microsoft/onnxruntime/releases/download/v${ONNX_VERSION}/${ONNX_RUNTIME_IDENTIFIER}.tgz)
 

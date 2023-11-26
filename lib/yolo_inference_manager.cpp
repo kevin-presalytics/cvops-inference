@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <vector>
+#include <memory>
 
 
 template<typename T>
@@ -29,6 +30,10 @@ void image_to_blob(cv::Mat& image, T &blob) {
 
 namespace cvops
 {
+    YoloInferenceManager::YoloInferenceManager() : InferenceManagerBase() {
+        blob = nullptr;
+    }
+
     void YoloInferenceManager::post_process(std::vector<Ort::Value>* output_tensor, InferenceResult* inference_result) 
     {
         // For debugging
@@ -136,6 +141,9 @@ namespace cvops
 
             // std::cout << "Class: " << class_name << ", Confidence: " << confidences[idx] << std::endl;
         }
+        if (blob) {
+            delete[] blob;
+        }
     }
     
     void YoloInferenceManager::pre_process(InferenceRequest* inference_request, cv::Mat* image, std::shared_ptr<Ort::Value> input_tensor) { // TODO: write pre processing code
@@ -152,7 +160,7 @@ namespace cvops
         size_t blob_size = input_image.cols * input_image.rows * 3;
 
         // allocate memory for blob
-        std::unique_ptr<float[]> blob(new float[blob_size]);
+        blob = new float[blob_size];
 
         // transfer image to blob
         image_to_blob(input_image, blob);
@@ -162,10 +170,16 @@ namespace cvops
 
         *input_tensor = Ort::Value::CreateTensor<float>(
             mem_info, 
-            blob.get(), 
+            blob, 
             blob_size,
             input_tensor_shape.data(), 
             input_tensor_shape.size()
         );
+    }
+
+    YoloInferenceManager::~YoloInferenceManager() {
+        if (blob) {
+            delete[] blob;
+        }
     }
 }

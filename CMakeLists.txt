@@ -30,6 +30,7 @@ set(HEADER_FILES
     ${INCLUDE_DIR}/yolo_inference_manager.h
     ${INCLUDE_DIR}/metadata_parser.h
     ${INCLUDE_DIR}/image_utils.h
+    ${INCLUDE_DIR}/tracking.h
 )
 
 set(LIBRARY_FILES
@@ -41,6 +42,7 @@ set(LIBRARY_FILES
     ${LIB_DIR}/metadata_parser.cpp
     ${LIB_DIR}/image_utils.cpp
     ${LIB_DIR}/inference_request.cpp
+    ${LIB_DIR}/tracking.cpp
 )
 
 add_library(C_API SHARED

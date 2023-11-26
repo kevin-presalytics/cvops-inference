@@ -38,6 +38,7 @@ extern "C" {
 
     cvops::InferenceResult* run_inference(cvops::IInferenceManager* inference_manager, cvops::InferenceRequest* inference_request) 
     {
+        // std::cout << "Running inference..." << std::endl;
         cvops::InferenceResult* inference_result = nullptr;
         if (inference_request && inference_manager)
         {
@@ -50,7 +51,8 @@ extern "C" {
                     throw std::runtime_error("Inference request size is null");
                 if (inference_request->size <= 0)
                     throw std::runtime_error("Inference request size is less than or equal to zero");
-            
+                
+                // std::cout << "Running infer method..." << std::endl;
                 inference_result = inference_manager->infer(inference_request);
             } catch (std::exception& ex) {
                 wrap_exception(ex);

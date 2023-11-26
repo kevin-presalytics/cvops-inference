@@ -35,6 +35,7 @@ namespace cvops {
             std::vector<std::string> input_names_;
             std::vector<std::string> output_names_;
             std::vector<cv::Scalar> color_palette_;
+            Ort::Env ort_env;
 
         private:
             void get_input_names();

@@ -20,7 +20,7 @@ namespace cvops {
         // std::cout << "Starting inference session..." << std::endl;
         validate_session_request(session_request_ptr);
         session_request = *session_request_ptr;
-        static Ort::Env ort_env = Ort::Env{ORT_LOGGING_LEVEL_WARNING, "InferenceManager"};
+        this->ort_env = Ort::Env{ORT_LOGGING_LEVEL_WARNING, "InferenceManager"};
         Ort::SessionOptions session_options;
         session_options.SetIntraOpNumThreads(1);
         session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
@@ -31,7 +31,7 @@ namespace cvops {
             session_options.AppendExecutionProvider_CUDA(cudaOption);
         }
         const char* model_path = this->session_request.model_path;
-        session = std::make_unique<Ort::Session>(ort_env, model_path, session_options);
+        session = std::make_unique<Ort::Session>(this->ort_env, model_path, session_options);
         metadata = MetadataParser::parse_metadata(this->session_request.metadata);
         get_input_names();
         get_output_names();
@@ -47,6 +47,7 @@ namespace cvops {
     InferenceResult* InferenceManagerBase::infer(InferenceRequest* inference_request) {  // TODO: Add images to inference request
         cv::Mat image;
         try {
+            // std::cout << "Decoding image to cv::Mat..." << std::endl;
             ImageUtils::decode_image(inference_request, &image);
         } catch (std::exception& ex) {
             std::string err_msg = "Unable to decode image inside infer method: " + std::string(ex.what());
@@ -59,6 +60,8 @@ namespace cvops {
         inference_result->image_width = image.cols;
 
         std::shared_ptr<Ort::Value> input_tensor = std::make_shared<Ort::Value>(nullptr);
+
+        // std::cout << "Preprocessing..." << std::endl;
         this->pre_process(inference_request, &image, input_tensor);
 
         std::vector<const char*> input_names_array;
@@ -75,16 +78,25 @@ namespace cvops {
 
         const char* const* output_names = &output_names_array[0];
         
-        std::vector<Ort::Value> output_tensor = session->Run(
-            Ort::RunOptions{nullptr},
-            input_names,
-            input_tensor.get(),
-            session->GetInputCount(),
-            output_names,
-            session->GetOutputCount()
-        );
-
-
+        // std::cout << "ONNX..." << std::endl;
+        if (!input_tensor) {
+            throw std::runtime_error("Input tensor is null");
+        }
+        std::vector<Ort::Value> output_tensor;
+        try {
+            output_tensor = session->Run(
+                Ort::RunOptions{nullptr},
+                input_names,
+                input_tensor.get(),
+                session->GetInputCount(),
+                output_names,
+                session->GetOutputCount()
+            );
+        } catch (Ort::Exception& ex) {
+            std::string err_msg = "Unable to run inference session (code: " + std::to_string(ex.GetOrtErrorCode()) + "): " + std::string(ex.what());
+            throw std::runtime_error(err_msg);
+        }
+        // std::cout << "Postprocessing..." << std::endl;
         this->post_process(&output_tensor, inference_result);
         if (inference_request->draw_detections) {
             ImageUtils::draw_detections(&image, inference_result, &this->color_palette_);
