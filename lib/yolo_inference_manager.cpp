@@ -143,6 +143,7 @@ namespace cvops
         }
         if (blob) {
             delete[] blob;
+            blob = nullptr;
         }
     }
     
