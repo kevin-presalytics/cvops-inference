@@ -12,24 +12,23 @@
 #include <memory>
 
 
-template<typename T>
-void image_to_blob(cv::Mat& image, T &blob) {
-    int channels = image.channels();
-    int height = image.rows;
-    int width = image.cols;
+namespace cvops
+{
+    template<typename T>
+    void image_to_blob(cv::Mat& image, T &blob) {
+        int channels = image.channels();
+        int height = image.rows;
+        int width = image.cols;
 
-    for (int c = 0; c < channels; c++) {
-        for (int h = 0; h < height; h++) {
-            for (int w = 0; w < width; w++) {
-                blob[c * width * height + h * width + w] = image.at<cv::Vec3b>(h, w)[c] / 255.0f;
+        for (int c = 0; c < channels; c++) {
+            for (int h = 0; h < height; h++) {
+                for (int w = 0; w < width; w++) {
+                    blob[c * width * height + h * width + w] = image.at<cv::Vec3b>(h, w)[c] / 255.0f;
+                }
             }
         }
     }
-}
-
-
-namespace cvops
-{
+    
     YoloInferenceManager::YoloInferenceManager() : InferenceManagerBase() {
         blob = nullptr;
     }

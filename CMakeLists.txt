@@ -21,28 +21,29 @@ project(cvops_inference)
 
 set(HEADER_FILES 
     ${INCLUDE_DIR}/cvops_inference.h
+    ${INCLUDE_DIR}/image_utils.h
     ${INCLUDE_DIR}/inference_manager_base.h
     ${INCLUDE_DIR}/inference_manager_factory.h
+    ${INCLUDE_DIR}/inference_manager_interface.h
     ${INCLUDE_DIR}/inference_request.h
     ${INCLUDE_DIR}/inference_result.h
     ${INCLUDE_DIR}/inference_session_request.h
-    ${INCLUDE_DIR}/model_platforms.h
-    ${INCLUDE_DIR}/yolo_inference_manager.h
     ${INCLUDE_DIR}/metadata_parser.h
-    ${INCLUDE_DIR}/image_utils.h
+    ${INCLUDE_DIR}/model_platforms.h
     ${INCLUDE_DIR}/tracking.h
+    ${INCLUDE_DIR}/yolo_inference_manager.h
 )
 
 set(LIBRARY_FILES
     ${LIB_DIR}/cvops_inference.cpp
+    ${LIB_DIR}/image_utils.cpp
     ${LIB_DIR}/inference_manager_base.cpp
     ${LIB_DIR}/inference_manager_factory.cpp
-    ${LIB_DIR}/yolo_inference_manager.cpp
+    ${LIB_DIR}/inference_request.cpp
     ${LIB_DIR}/inference_result.cpp
     ${LIB_DIR}/metadata_parser.cpp
-    ${LIB_DIR}/image_utils.cpp
-    ${LIB_DIR}/inference_request.cpp
     ${LIB_DIR}/tracking.cpp
+    ${LIB_DIR}/yolo_inference_manager.cpp
 )
 
 add_library(C_API SHARED

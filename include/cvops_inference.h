@@ -9,6 +9,7 @@
 #include "model_platforms.h"
 #include "inference_manager_interface.h"
 #include "tracking.h"
+#include "image_utils.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,7 +22,10 @@ extern "C" {
     void free_color_palette();
     void set_color_palette(char* color_palette);
     cvops::Tracker* create_tracker(cvops::TrackerTypes tracker_type, void* image_data, int image_height, int image_width, int num_channels);
-    void update_tracker(cvops::Tracker* tracker, void* image_data, int image_height, int image_width, int num_channels);
+    void track_image(cvops::Tracker* tracker, void* image_data, int image_height, int image_width, int num_channels);
+    void update_tracker(cvops::Tracker* tracker, cvops::InferenceResult* inference_result, void* image_data, int image_height, int image_width, int num_channels);
+    cvops::TrackerState* get_tracker_state(cvops::Tracker* tracker);
+    void dispose_tracker_state(cvops::TrackerState* tracker_state);
     void dispose_tracker(cvops::Tracker* tracker);
     const char* error_message();
 

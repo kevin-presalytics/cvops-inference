@@ -94,12 +94,8 @@ extern "C" {
 
     void render_inference_result(cvops::InferenceResult* inference_result, void* image_data, int image_height, int image_width, int num_channels) 
     {
-        int cv_data_type = CV_8UC3;
-        if (num_channels == 1)
-            cv_data_type = CV_8UC1;
-        if (num_channels == 4)
-            cv_data_type = CV_8UC4;
-        cv::Mat raw_image(image_height, image_width, cv_data_type, image_data);
+        
+        cv::Mat raw_image = cvops::ImageUtils::create_cv_mat_from_buffer(image_data, image_height, image_width, num_channels);
         cvops::ImageUtils::draw_detections(&raw_image, inference_result, cv_colors.get());
     }
 
@@ -112,6 +108,44 @@ extern "C" {
             wrap_exception(ex);
         }
     }
+
+    cvops::Tracker* create_tracker(cvops::TrackerTypes tracker_type)
+    {
+        return new cvops::Tracker(tracker_type);
+    }
+    void track_image(cvops::Tracker* tracker, void* image_data, int image_height, int image_width, int num_channels)
+    {
+        cv::Mat raw_image = cvops::ImageUtils::create_cv_mat_from_buffer(image_data, image_height, image_width, num_channels);
+        tracker->update(raw_image);
+    }
+
+    void update_tracker(cvops::Tracker* tracker, cvops::InferenceResult* inference_result, void* image_data, int image_height, int image_width, int num_channels)
+    {
+        cv::Mat raw_image = cvops::ImageUtils::create_cv_mat_from_buffer(image_data, image_height, image_width, num_channels);
+        tracker->update(raw_image, *inference_result);
+    }
+
+    void dispose_tracker(cvops::Tracker* tracker)
+    {
+        if (tracker)
+        {
+            delete tracker;
+        }
+    }
+
+    void dispose_tracker_state(cvops::TrackerState* tracker_state)
+    {
+        if (tracker_state)
+        {
+            delete tracker_state;
+        }
+    }
+
+    cvops::TrackerState* get_tracker_state(cvops::Tracker* tracker)
+    {
+        return tracker->get_state();
+    }
+
 
     const char* error_message() {
         return err_msg.c_str();

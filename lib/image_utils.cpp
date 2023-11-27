@@ -147,4 +147,14 @@ namespace cvops
         resized_image.copyTo(tempImg(cv::Rect(0, 0, resized_image.cols, resized_image.rows)));
         resized_image = tempImg;
     }
+
+    cv::Mat ImageUtils::create_cv_mat_from_buffer(void* image_data, int image_height, int image_width, int num_channels)
+    {
+        int cv_data_type = CV_8UC3;
+        if (num_channels == 1)
+            cv_data_type = CV_8UC1;
+        if (num_channels == 4)
+            cv_data_type = CV_8UC4;
+        return cv::Mat(image_height, image_width, cv_data_type, image_data);
+    }
 }
