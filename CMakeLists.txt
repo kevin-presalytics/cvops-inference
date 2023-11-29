@@ -21,11 +21,13 @@ project(cvops_inference)
 
 set(HEADER_FILES 
     ${INCLUDE_DIR}/cvops_inference.h
+    ${INCLUDE_DIR}/hungarian.h
     ${INCLUDE_DIR}/inference_manager_base.h
     ${INCLUDE_DIR}/inference_manager_factory.h
     ${INCLUDE_DIR}/inference_request.h
     ${INCLUDE_DIR}/inference_result.h
     ${INCLUDE_DIR}/inference_session_request.h
+    ${INCLUDE_DIR}/kalman_filter.h
     ${INCLUDE_DIR}/model_platforms.h
     ${INCLUDE_DIR}/yolo_inference_manager.h
     ${INCLUDE_DIR}/metadata_parser.h
@@ -35,10 +37,12 @@ set(HEADER_FILES
 
 set(LIBRARY_FILES
     ${LIB_DIR}/cvops_inference.cpp
+    ${LIB_DIR}/hungarian.cpp
     ${LIB_DIR}/inference_manager_base.cpp
     ${LIB_DIR}/inference_manager_factory.cpp
     ${LIB_DIR}/yolo_inference_manager.cpp
     ${LIB_DIR}/inference_result.cpp
+    ${LIB_DIR}/kalman_filter.cpp
     ${LIB_DIR}/metadata_parser.cpp
     ${LIB_DIR}/image_utils.cpp
     ${LIB_DIR}/inference_request.cpp

@@ -3,16 +3,16 @@
 
 #include "inference_request.h"
 
+#include <opencv2/opencv.hpp>
+
 namespace cvops {
-    struct Box {
-        int x;
-        int y;
-        int width;
-        int height;
+    struct Box : public cv::Rect2i {
         int class_id;
         char* class_name;
         int object_id;
         float confidence;
+        Box();
+        Box(cv::Rect base_rect, int class_id, char* class_name, int object_id, float confidence);
     };
 
     struct InferenceResult {

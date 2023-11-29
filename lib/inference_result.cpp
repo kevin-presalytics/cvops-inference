@@ -4,6 +4,16 @@
 
 namespace cvops
 {
+    Box::Box() {}
+
+    Box::Box(cv::Rect base_rect, int class_id, char* class_name, int object_id, float confidence) : cv::Rect(base_rect)
+    {
+        class_id = class_id;
+        class_name = class_name;
+        object_id = object_id;
+        confidence = confidence;
+    }
+
     InferenceResult::InferenceResult() {
         boxes = nullptr;
         image = nullptr;

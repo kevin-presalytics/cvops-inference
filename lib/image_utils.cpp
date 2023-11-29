@@ -52,14 +52,24 @@ namespace cvops
         InferenceResult* inference_result_ptr,
         std::vector<cv::Scalar>* color_palette_ptr)
     {
+        std::vector<Box> boxes(inference_result_ptr->boxes_count);
+        for (int i = 0; i < inference_result_ptr->boxes_count; i++)
+            boxes.push_back(inference_result_ptr->boxes[i]);
+        ImageUtils::draw_detections(image_ptr, boxes, color_palette_ptr);
+    }
 
-        int detection_count = inference_result_ptr->boxes_count;
+    void ImageUtils::draw_detections(
+        cv::Mat* image_ptr, 
+        std::vector<Box> boxes,
+        std::vector<cv::Scalar>* color_palette_ptr)
+    {
+
+        int detection_count = (int)boxes.size();
         for (int b = 0; b < detection_count; b++)
         {
-            Box box = inference_result_ptr->boxes[b];
+            Box box = boxes[b];
             cv::Scalar color = (*color_palette_ptr)[box.class_id];
-            cv::Rect rect = ImageUtils::to_cv_rect(box);
-            cv::rectangle(*image_ptr, rect, color, 2); // "2" is the line thickness of the bounding box
+            cv::rectangle(*image_ptr, box, color, 2); // "2" is the line thickness of the bounding box
 
             int baseline = 0;
             std::string label(box.class_name);
@@ -146,5 +156,16 @@ namespace cvops
         cv::Mat tempImg = cv::Mat::zeros(target_size, CV_8UC3);
         resized_image.copyTo(tempImg(cv::Rect(0, 0, resized_image.cols, resized_image.rows)));
         resized_image = tempImg;
+    }
+
+    float ImageUtils::get_iou(const cv::Rect& rect_1, const cv::Rect& rect_2)
+    {
+        cv::Rect intersection = rect_1 & rect_2;
+        if (intersection.empty())
+        {
+            return 0.0;
+        }
+        float iou = intersection.area() / (rect_1.area() + rect_2.area() - intersection.area());
+        return iou;
     }
 }
