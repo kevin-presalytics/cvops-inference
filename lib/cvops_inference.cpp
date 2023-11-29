@@ -113,6 +113,33 @@ extern "C" {
         }
     }
 
+    cvops::MultiTracker* create_tracker()
+    {
+        if (cv_colors == nullptr)
+            throw std::runtime_error("Color palette is null");
+        return new cvops::MultiTracker(cv_colors);
+    }
+
+    void track_image(cvops::MultiTracker* tracker, void* image_data, int image_height, int image_width, int num_channels)
+    {
+        cv::Mat raw_image = cvops::ImageUtils::create_cv_mat_from_buffer(image_data, image_height, image_width, num_channels);
+        tracker->update(raw_image);
+    }
+
+    void update_tracker(cvops::MultiTracker* tracker, cvops::InferenceResult* inference_result, void* image_data, int image_height, int image_width, int num_channels)
+    {
+        cv::Mat raw_image = cvops::ImageUtils::create_cv_mat_from_buffer(image_data, image_height, image_width, num_channels);
+        tracker->update(raw_image, *inference_result);
+    }
+
+    void dispose_tracker(cvops::MultiTracker* tracker)
+    {
+        if (tracker)
+        {
+            delete tracker;
+        }
+    }
+
     const char* error_message() {
         return err_msg.c_str();
     }

@@ -77,7 +77,7 @@ namespace cvops {
         this->get_matches();
         this->update_trackers();
         this->create_new_trackers();
-        this->remove_dead_trackers();
+        this->remove_dead_trackers(frame);
         this->update_frame(frame);
     }
 
@@ -219,6 +219,26 @@ namespace cvops {
     void MultiTracker::update_frame(cv::Mat& frame)
     {
         ImageUtils::draw_detections(&frame, this->predictions, this->color_palette.get());
+    }
+
+    void MultiTracker::remove_dead_trackers(const cv::Mat& frame)
+    {
+        int tracker_count = (int)this->trackers.size();
+        int image_width = frame.cols;
+        int image_height = frame.rows;
+
+        for (int i = 0; i < tracker_count; i++)
+        {
+            // TODO: create method to filter out boxes that are no longer being detected
+            cv::Rect2d box = this->trackers[i]->get_state();
+            cv::Point box_center = cv::Point(box.x + box.width / 2, box.y + box.height / 2);
+            if (box_center.x < 0 || box_center.y < 0 || box_center.x > image_width || box_center.y > image_height)
+            {
+                // Deletes box if out of frame
+                delete this->trackers[i];
+                this->trackers.erase(this->trackers.begin() + i);
+            }
+        }
     }
 
 

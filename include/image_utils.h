@@ -35,6 +35,7 @@ namespace cvops
             static void write_to_file(const std::string& filename, const char* image, int image_size);
 
             static float get_iou(const cv::Rect& rect_1, const cv::Rect& rect_2);
+            static cv::Mat create_cv_mat_from_buffer(void* image_data, int image_height, int image_width, int num_channels);
 
             ImageUtils() = delete;
     };

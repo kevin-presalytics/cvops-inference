@@ -45,7 +45,7 @@ namespace cvops {
             void update_frame(cv::Mat& frame);
             void update_trackers();
             void create_new_trackers();
-            void remove_dead_trackers();
+            void remove_dead_trackers(const cv::Mat& frame);
             void get_matches();
             int get_highest_object_id();
 

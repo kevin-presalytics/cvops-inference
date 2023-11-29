@@ -20,8 +20,9 @@ extern "C" {
     void render_inference_result(cvops::InferenceResult* inference_result, void* image_data, int image_height, int image_width, int num_channels);
     void free_color_palette();
     void set_color_palette(char* color_palette);
-    cvops::MultiTracker* create_tracker(cvops::TrackerTypes tracker_type, void* image_data, int image_height, int image_width, int num_channels);
-    void update_tracker(cvops::MultiTracker* tracker, void* image_data, int image_height, int image_width, int num_channels);
+    cvops::MultiTracker* create_tracker();
+    void update_tracker(cvops::MultiTracker* tracker, cvops::InferenceResult* inference_result, void* image_data, int image_height, int image_width, int num_channels);
+    void track_image(cvops::MultiTracker* tracker, void* image_data, int image_height, int image_width, int num_channels);
     void dispose_tracker(cvops::MultiTracker* tracker);
     const char* error_message();
 
