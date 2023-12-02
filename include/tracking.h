@@ -35,6 +35,7 @@ namespace cvops {
             void init(cv::Mat& frame, const InferenceResult& inference_result);
             void update(cv::Mat& frame, const InferenceResult& inference_result);
             void update(cv::Mat& frame);
+            InferenceResult* get_state();
         private:
             // methods
             void get_predictions();

@@ -126,7 +126,7 @@ int main(int argc, char** argv)
                 out_file.open (f_path);
                 out_file.write(reinterpret_cast<const char*>(result->image), result->image_size);
                 out_file.close();
-                delete buffer;
+                delete[] buffer;
 
                 //for debugging
                 std::cout << "Number of objects detected: " << result->boxes_count << std::endl;

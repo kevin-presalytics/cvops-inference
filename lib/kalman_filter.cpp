@@ -105,10 +105,17 @@ namespace cvops
 
 
     // Return the current state vector
-    cv::Rect KalmanTracker::get_state()
+    Box KalmanTracker::get_state()
     {
         cv::Mat s = this->filter.statePost;
-        return get_rect_xysr(s.at<float>(0, 0), s.at<float>(1, 0), s.at<float>(2, 0), s.at<float>(3, 0));
+        cv::Rect rect = get_rect_xysr(s.at<float>(0, 0), s.at<float>(1, 0), s.at<float>(2, 0), s.at<float>(3, 0));
+        return Box(
+            rect, 
+            this->initial_box_->class_id,
+            this->initial_box_->class_name,
+            this->initial_box_->object_id,
+            this->initial_box_->confidence
+        );
     }
 
     // Convert bounding box from [cx,cy,s,r] to [x,y,w,h] style.

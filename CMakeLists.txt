@@ -1,11 +1,30 @@
 cmake_minimum_required(VERSION 3.15)
 
 # Compiler settings
-set (CMAKE_CXX_FLAGS "-lstdc++fs -std=c++17")
+SET (CMAKE_C_COMPILER             "/usr/bin/clang")
+SET (CMAKE_C_FLAGS                "-Wall -std=c99")
+SET (CMAKE_C_FLAGS_DEBUG          "-g")
+SET (CMAKE_C_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
+SET (CMAKE_C_FLAGS_RELEASE        "-O4 -DNDEBUG")
+SET (CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
+
+SET (CMAKE_CXX_COMPILER             "/usr/bin/clang++")
+SET (CMAKE_CXX_FLAGS                "-Wall")
+SET (CMAKE_CXX_FLAGS_DEBUG          "-g")
+SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
+SET (CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
+SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+
+# SET (CMAKE_AR      "/usr/bin/llvm-ar")
+SET (CMAKE_LINKER  "/usr/bin/llvm-ld")
+# SET (CMAKE_NM      "/usr/bin/llvm-nm")
+# SET (CMAKE_OBJDUMP "/usr/bin/llvm-objdump")
+# SET (CMAKE_RANLIB  "/usr/bin/llvm-ranlib")
+set(CMAKE_CXX_FLAGS "-std=c++17")
 
 # Global settings
 set(GLOBAL_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build)
-set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
+# set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 
 # Sets global output directory for single configuration (GCC)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${GLOBAL_OUTPUT_PATH})
@@ -74,10 +93,48 @@ target_include_directories(cvops_inference PUBLIC ${INCLUDE_DIR})
 set_target_properties(cvops_inference PROPERTIES
     OUTPUT_NAME cvops
 )
-
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/opencv)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/onnx)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/jsoncpp)
+
+
+# SET(OpenCV_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/opencv)
+# SET(OpenCV_INCLUDE_DIRS ${OpenCV_DIR}/src/include)
+
+#list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/build")
+# message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
+find_package(OpenCV REQUIRED VERSION 4.8.1)
+message(STATUS "OpenCV_VERSION: ${OpenCV_VERSION}")
+# SET(OpenCV_INCLUDE_DIRS
+#     ${GLOBAL_OUTPUT_PATH}
+#     ${GLOBAL_OUTPUT_PATH}/opencv/src/include
+#     ${GLOBAL_OUTPUT_PATH}/opencv/src/modules/core/include
+#     ${GLOBAL_OUTPUT_PATH}/opencv/src/modules/flann/include
+#     ${GLOBAL_OUTPUT_PATH}/opencv/src/modules/imgproc/include
+#     ${GLOBAL_OUTPUT_PATH}/opencv/src/modules/ml/include
+#     ${GLOBAL_OUTPUT_PATH}/opencv/src/modules/photo/include
+#     ${GLOBAL_OUTPUT_PATH}/opencv/src/modules/dnn/include
+#     ${GLOBAL_OUTPUT_PATH}/opencv/src/modules/features2d/include
+#     ${GLOBAL_OUTPUT_PATH}/opencv/src/modules/imgcodecs/include
+#     ${GLOBAL_OUTPUT_PATH}/opencv/src/modules/videoio/include
+#     ${GLOBAL_OUTPUT_PATH}/opencv/src/modules/calib3d/include
+#     ${GLOBAL_OUTPUT_PATH}/opencv/src/modules/highgui/include
+#     ${GLOBAL_OUTPUT_PATH}/opencv/src/modules/objdetect/include
+#     ${GLOBAL_OUTPUT_PATH}/opencv/src/modules/stitching/include
+#     ${GLOBAL_OUTPUT_PATH}/opencv/src/modules/ts/include
+#     ${GLOBAL_OUTPUT_PATH}/opencv/src/modules/video/include
+#     ${GLOBAL_OUTPUT_PATH}/opencv/src/modules/gapi/include
+# )
+
+message(STATUS "OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}")
+
+include_directories(cvops_inference PRIVATE ${OpenCV_INCLUDE_DIRS})
+include_directories(C_API PRIVATE ${OpenCV_INCLUDE_DIRS})
+
+target_link_libraries(cvops_inference OpenCV)
+target_link_libraries(C_API OpenCV)
+
+
 
 install(
     TARGETS cvops_inference C_API
