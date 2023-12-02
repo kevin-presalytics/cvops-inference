@@ -241,12 +241,16 @@ namespace cvops {
         }
     }
 
-
-
-
-
-
-    
-
+    InferenceResult* MultiTracker::get_state()
+    {
+        int tracker_count = (int)this->trackers.size();
+        InferenceResult* result = new InferenceResult();
+        result->boxes_count = tracker_count;
+        result->boxes = new Box[tracker_count];
+        for (int i = 0; i < tracker_count; i++)
+        {
+            result->boxes[i] = this->trackers[i]->get_state();
+        }
+        return result;
+    }
 }
-

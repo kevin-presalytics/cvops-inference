@@ -35,6 +35,7 @@ namespace cvops {
             void init(cv::Mat& frame, const InferenceResult& inference_result);
             void update(cv::Mat& frame, const InferenceResult& inference_result);
             void update(cv::Mat& frame);
+            InferenceResult* get_state();
         private:
             // methods
             void get_predictions();
@@ -68,8 +69,6 @@ namespace cvops {
             double iou_threshold;
             int object_id_upper_bound;
             std::shared_ptr<std::vector<cv::Scalar>> color_palette;
-
-        
     };
 }
 

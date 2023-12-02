@@ -10,6 +10,9 @@
 
 #include <memory>
 #include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/core/types.hpp>
+#include <opencv2/core/mat.hpp>
 
 #ifdef __cplusplus
 extern "C" {
@@ -130,6 +133,11 @@ extern "C" {
     {
         cv::Mat raw_image = cvops::ImageUtils::create_cv_mat_from_buffer(image_data, image_height, image_width, num_channels);
         tracker->update(raw_image, *inference_result);
+    }
+
+    cvops::InferenceResult* get_tracker_state(cvops::MultiTracker* tracker)
+    {
+        return tracker->get_state();
     }
 
     void dispose_tracker(cvops::MultiTracker* tracker)

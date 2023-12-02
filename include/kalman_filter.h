@@ -16,7 +16,7 @@ namespace cvops
             ~KalmanTracker();
             Box predict();
             void update(cv::Rect new_observation);
-            cv::Rect get_state();
+            Box get_state();
 
             // properties
             int time_since_update;

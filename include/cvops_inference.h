@@ -23,6 +23,7 @@ extern "C" {
     cvops::MultiTracker* create_tracker();
     void update_tracker(cvops::MultiTracker* tracker, cvops::InferenceResult* inference_result, void* image_data, int image_height, int image_width, int num_channels);
     void track_image(cvops::MultiTracker* tracker, void* image_data, int image_height, int image_width, int num_channels);
+    cvops::InferenceResult* get_tracker_state(cvops::MultiTracker* tracker);
     void dispose_tracker(cvops::MultiTracker* tracker);
     const char* error_message();
 
