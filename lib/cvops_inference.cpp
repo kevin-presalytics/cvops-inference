@@ -111,6 +111,7 @@ extern "C" {
         {
             if (inference_result)
                 delete inference_result;
+                inference_result = nullptr;
         } catch (std::exception& ex) {
             wrap_exception(ex);
         }
@@ -145,6 +146,7 @@ extern "C" {
         if (tracker)
         {
             delete tracker;
+            tracker = nullptr;
         }
     }
 

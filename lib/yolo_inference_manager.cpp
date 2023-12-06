@@ -111,13 +111,16 @@ namespace cvops
         try {
             // Removes overlapping boxes
             cv::dnn::NMSBoxes(boxes, confidences, confidence_threshold, nms_threshold, nms_result);
-            inference_result->boxes = new Box[nms_result.size()];
             inference_result->boxes_count = nms_result.size();
+            void* boxes_ptr = operator new[](sizeof(Box) * nms_result.size());
+            inference_result->boxes = static_cast<Box*>(boxes_ptr);
+            
         } catch (std::exception& ex) {
             // NMBSBoxes throws an exception if no boxes are found
             std::cout << ex.what() << std::endl;
-            inference_result->boxes = new Box[boxes.size()];
-            inference_result->boxes_count = boxes.size();
+            inference_result->boxes_count = (int)boxes.size();
+            void* boxes_ptr = operator new[](sizeof(Box) * boxes.size());
+            inference_result->boxes = static_cast<Box*>(boxes_ptr);   
         }
         
 

@@ -43,16 +43,17 @@ namespace cvops {
             void clear_results();
             void get_unmatched_predictions();
             void get_unmatched_dectections();
-            void update_frame(cv::Mat& frame);
+            void update_frame(cv::Mat& frame, std::vector<Box> boxes);
             void update_trackers();
             void create_new_trackers();
             void remove_dead_trackers(const cv::Mat& frame);
             void get_matches();
             int get_highest_object_id();
+            std::vector<Box> get_filtered_predictions();
 
 
             // properties
-            std::vector<KalmanTracker*> trackers;
+            std::vector<std::unique_ptr<KalmanTracker>> trackers;
             TrackerTypes tracker_type;
             HungarianAlgorithm hungarian_algoritm;
             // std::vector<cv::Rect2d> bounding_boxes;
@@ -69,6 +70,8 @@ namespace cvops {
             double iou_threshold;
             int object_id_upper_bound;
             std::shared_ptr<std::vector<cv::Scalar>> color_palette;
+            int min_height;
+            int min_width;
     };
 }
 

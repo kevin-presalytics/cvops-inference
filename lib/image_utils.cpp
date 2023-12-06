@@ -52,7 +52,7 @@ namespace cvops
         InferenceResult* inference_result_ptr,
         std::vector<cv::Scalar>* color_palette_ptr)
     {
-        std::vector<Box> boxes(inference_result_ptr->boxes_count);
+        std::vector<Box> boxes;
         for (int i = 0; i < inference_result_ptr->boxes_count; i++)
             boxes.push_back(inference_result_ptr->boxes[i]);
         ImageUtils::draw_detections(image_ptr, boxes, color_palette_ptr);

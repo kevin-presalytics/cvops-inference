@@ -94,9 +94,58 @@ set_target_properties(cvops_inference PROPERTIES
     OUTPUT_NAME cvops
 )
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/opencv)
+# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/opencv)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/onnx)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/jsoncpp)
+
+SET(OPENCV_TARGET_DIR ${GLOBAL_OUTPUT_PATH}/opencv)
+FILE(MAKE_DIRECTORY ${OPENCV_TARGET_DIR})
+
+MESSAGE(STATUS "OPENCV_TARGET_DIR: ${CMAKE_CURRENT_SOURCE_DIR}/external/opencv")
+message("CMAKE: ${CMAKE_COMMAND}")
+message("CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
+
+FUNCTION(HANDLE_SUBPROCESS_RESULTS _STEP _RESULT _ERROR_VAR)
+    IF(_RESULT)
+        MESSAGE(FATAL_ERROR "${_STEP} Failed: ${_ERROR_VAR}")
+    ENDIF()
+ENDFUNCTION()
+
+execute_process(
+    COMMAND ${CMAKE_COMMAND} -S ${CMAKE_CURRENT_SOURCE_DIR}/external/opencv -B ${OPENCV_TARGET_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/opencv
+    RESULT_VARIABLE OPENCV_RESULT
+    ERROR_VARIABLE OPENCV_BUILD_ERROR
+)
+HANDLE_SUBPROCESS_RESULTS("OpenCV Configure" "${OPENCV_RESULT}" "${OPENCV_BUILD_ERROR}")
+
+execute_process(
+    COMMAND ${CMAKE_COMMAND} --build ${OPENCV_TARGET_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/opencv
+    RESULT_VARIABLE OPENCV_RESULT
+    ERROR_VARIABLE OPENCV_BUILD_ERROR
+)
+HANDLE_SUBPROCESS_RESULTS("OpenCV Build" "${OPENCV_RESULT}" "${OPENCV_BUILD_ERROR}")
+
+# --default-directory-permissions "OWNER_READ OWNER_WRITE OWNER_EXECUTE"
+execute_process(
+    COMMAND ${CMAKE_COMMAND} --install ${OPENCV_TARGET_DIR} --prefix ${OPENCV_TARGET_DIR}/install
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/opencv
+    RESULT_VARIABLE OPENCV_RESULT
+    ERROR_VARIABLE OPENCV_BUILD_ERROR
+)
+HANDLE_SUBPROCESS_RESULTS("OpenCV Install" "${OPENCV_RESULT}" "${OPENCV_BUILD_ERROR}")
+
+SET(OpenCV_DIR ${GLOBAL_OUTPUT_PATH}/opencv/install/lib/cmake/opencv4)
+find_package(OpenCV REQUIRED EXACT 4.8.0 NO_DEFAULT_PATH)
+
+MESSAGE(STATUS "OpenCV_INLCUDE_DIRS: ${OpenCV_INCLUDE_DIRS}")
+
+target_include_directories(cvops_inference PRIVATE ${OpenCV_INCLUDE_DIRS})
+target_include_directories(C_API PRIVATE ${OpenCV_INCLUDE_DIRS})
+
+target_link_libraries(cvops_inference PRIVATE ${OpenCV_LIBS})
+target_link_libraries(C_API PRIVATE ${OpenCV_LIBS})
 
 install(
     TARGETS cvops_inference C_API

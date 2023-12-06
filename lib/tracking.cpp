@@ -17,7 +17,7 @@ namespace cvops {
 
     MultiTracker::MultiTracker(std::shared_ptr<std::vector<cv::Scalar>> color_palette) {
         this->tracker_type = TrackerTypes::SORT;
-        this->trackers = std::vector<KalmanTracker*>();
+        this->trackers = std::vector<std::unique_ptr<KalmanTracker>>();
         this->hungarian_algoritm = HungarianAlgorithm();
         this->unmatched_detections = std::set<int>();
         this->unmatched_predictions = std::set<int>();
@@ -28,16 +28,14 @@ namespace cvops {
         this->assignments = std::vector<int>();
         this->predictions = std::vector<Box>();
         this->iou_threshold = 0.3;
-        this->object_id_upper_bound = 1000000;
+        this->object_id_upper_bound = 1000000;  // TODO: Make this configurable, probbly need to redo algo
         this->color_palette = color_palette;
+        this->min_height = 10;  // TODO: Make these configurable
+        this->min_width = 10; // TODO: Make these 
     }
 
     MultiTracker::~MultiTracker() { 
         this->clear_results();
-        for (KalmanTracker* tracker : this->trackers)
-        {
-            delete tracker;
-        }
         this->trackers.clear();
     }
 
@@ -50,25 +48,26 @@ namespace cvops {
         this->matched_pairs.clear();
         this->tracking_results.clear();
         this->assignments.clear();
+        this->predictions.clear();
+        this->iou_matrix.clear();
     }
 
     void MultiTracker::init(cv::Mat& frame, const InferenceResult& inference_result)
     {
-        for (int i = 0; i <= inference_result.boxes_count; i++)
+        for (int i = 0; i < inference_result.boxes_count; i++)
         {
-            KalmanTracker* new_tracker = new KalmanTracker(&inference_result.boxes[i], i);
-            this->trackers.emplace_back(new_tracker);
+            this->trackers.emplace_back(std::make_unique<KalmanTracker>(&inference_result.boxes[i], i));
         }
     }
 
     void MultiTracker::update(cv::Mat& frame, const InferenceResult& inference_result)
     {
         this->clear_results();
+        this->last_inference_result = inference_result;
         if (this->trackers.size() == 0) {
             // Initialize
             this->init(frame, inference_result);
         }
-        this->last_inference_result = inference_result;
         this->get_predictions();
         this->get_iou_matrix(inference_result);
         this->hungarian_algoritm.Solve(this->iou_matrix, this->assignments);
@@ -78,13 +77,15 @@ namespace cvops {
         this->update_trackers();
         this->create_new_trackers();
         this->remove_dead_trackers(frame);
-        this->update_frame(frame);
+        std::vector<Box> filtered_predictions = this->get_filtered_predictions();
+        this->update_frame(frame, filtered_predictions);
     }
 
     void MultiTracker::update(cv::Mat& frame)
     {
         this->get_predictions();
-        this->update_frame(frame);
+        std::vector<Box> filtered_predictions = this->get_filtered_predictions();
+        this->update_frame(frame, filtered_predictions);
     }
 
     void MultiTracker::get_predictions()
@@ -92,15 +93,7 @@ namespace cvops {
         size_t prediction_count = this->trackers.size();
         for (int i = 0; i < prediction_count; i++)
         {
-            KalmanTracker* tracker_ptr = this->trackers[i];
-            Box prediction = tracker_ptr->predict();
-            if (prediction.x > 0 && prediction.y > 0)
-            {
-                predictions.push_back(prediction);
-            } else {
-                delete this->trackers[i];
-                this->trackers.erase(this->trackers.begin() + i);
-            }
+            this->predictions.push_back(this->trackers[i]->predict());
         }
     }
 
@@ -112,10 +105,10 @@ namespace cvops {
 
         iou_matrix.resize(num_trackers);
 
-        for (int t = 0; t <= num_trackers; t++)
+        for (int t = 0; t < num_trackers; t++)
         {
             iou_matrix[t].resize(num_detections);
-            for (int d = 0; d <= num_detections; d++)
+            for (int d = 0; d < num_detections; d++)
             {
                 cv::Rect detected_box = ImageUtils::to_cv_rect(inference_result.boxes[d]);
                 // this is really the complement of IoU -> Hungarian is a min cost algorithm
@@ -209,16 +202,15 @@ namespace cvops {
 		{
             object_id++;
             Box* box = &(this->last_inference_result.boxes[unmatched_index]);
-			KalmanTracker* tracker_ptr = new KalmanTracker(box, object_id); 
-			this->trackers.push_back(tracker_ptr);
+			this->trackers.emplace_back(std::make_unique<KalmanTracker>(box, object_id));
             
 		}    
     }
 
 
-    void MultiTracker::update_frame(cv::Mat& frame)
+    void MultiTracker::update_frame(cv::Mat& frame, std::vector<Box> boxes)
     {
-        ImageUtils::draw_detections(&frame, this->predictions, this->color_palette.get());
+        ImageUtils::draw_detections(&frame, boxes, this->color_palette.get());
     }
 
     void MultiTracker::remove_dead_trackers(const cv::Mat& frame)
@@ -235,7 +227,6 @@ namespace cvops {
             if (box_center.x < 0 || box_center.y < 0 || box_center.x > image_width || box_center.y > image_height)
             {
                 // Deletes box if out of frame
-                delete this->trackers[i];
                 this->trackers.erase(this->trackers.begin() + i);
             }
         }
@@ -246,11 +237,34 @@ namespace cvops {
         int tracker_count = (int)this->trackers.size();
         InferenceResult* result = new InferenceResult();
         result->boxes_count = tracker_count;
-        result->boxes = new Box[tracker_count];
+        void* boxes_ptr = operator new[](sizeof(Box) * tracker_count);
+        result->boxes = static_cast<Box*>(boxes_ptr);
         for (int i = 0; i < tracker_count; i++)
         {
             result->boxes[i] = this->trackers[i]->get_state();
         }
         return result;
+    }
+
+    // filter predictions to those should be rendered
+    std::vector<Box> MultiTracker::get_filtered_predictions()
+    {
+        std::vector<Box> filtered_predictions;
+        int num_trackers = (int)this->trackers.size();
+        for (int i = 0; i < num_trackers; i++)
+        {
+
+            Box box = this->trackers[i]->get_state();
+            // Test box for min height and width
+            bool too_small = box.height < this->min_height || box.width < this->min_width;
+            // Test box for min age to filter false positives
+            // First hit just comes from the initialization process of the tracker
+            bool too_young = this->trackers[i]->hits <= 1; 
+
+            if (!too_small && !too_young)
+                filtered_predictions.push_back(box);
+        }
+
+        return filtered_predictions;
     }
 }

@@ -19,10 +19,10 @@ namespace cvops
 		hits = 0;
 		hit_streak = 0;
 		age = 0;
-		id = id;
+		id = object_id;
         history = std::vector<cv::Rect2f>();
-        state_num_ = 4;
-        measure_num_ = 7;        
+        state_num_ = 7;
+        measure_num_ = 4;        
         filter = cv::KalmanFilter(state_num_, measure_num_, 0);
         this->init();
 	}
@@ -38,14 +38,14 @@ namespace cvops
 
         this->measurement = cv::Mat::zeros(this->measure_num_, 1, CV_32F);
 
-        this->filter.transitionMatrix = cv::Mat_<float>(this->state_num_, this->state_num_) <<
+        this->filter.transitionMatrix = (cv::Mat_<float>(this->state_num_, this->state_num_) <<
             1, 0, 0, 0, 1, 0, 0,
             0, 1, 0, 0, 0, 1, 0,
             0, 0, 1, 0, 0, 0, 1,
             0, 0, 0, 1, 0, 0, 0,
             0, 0, 0, 0, 1, 0, 0,
             0, 0, 0, 0, 0, 1, 0,
-            0, 0, 0, 0, 0, 0, 1;
+            0, 0, 0, 0, 0, 0, 1);
 
         
 
@@ -59,6 +59,11 @@ namespace cvops
         this->filter.statePost.at<float>(1, 0) = this->state_.y + this->state_.height / 2;
         this->filter.statePost.at<float>(2, 0) = this->state_.area();
         this->filter.statePost.at<float>(3, 0) = this->state_.width / this->state_.height;
+
+        // this->filter.statePre.at<float>(0, 0) = this->state_.x + this->state_.width / 2;
+        // this->filter.statePre.at<float>(1, 0) = this->state_.y + this->state_.height / 2;
+        // this->filter.statePre.at<float>(2, 0) = this->state_.area();
+        // this->filter.statePre.at<float>(3, 0) = this->state_.width / this->state_.height;
     }
 
     // Predict the estimated bounding box.

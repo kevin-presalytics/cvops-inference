@@ -1,14 +1,17 @@
 #ifndef C_API_H
 #define C_API_H
 
-#include <opencv2/opencv.hpp>
-
 #include "inference_result.h"
 #include "inference_request.h"
 #include "inference_session_request.h"
 #include "model_platforms.h"
 #include "inference_manager_interface.h"
 #include "tracking.h"
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/core/types.hpp>
+#include <opencv2/core/mat.hpp>
 
 #ifdef __cplusplus
 extern "C" {

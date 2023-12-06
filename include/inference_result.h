@@ -11,7 +11,6 @@ namespace cvops {
         char* class_name;
         int object_id;
         float confidence;
-        Box();
         Box(cv::Rect base_rect, int class_id, char* class_name, int object_id, float confidence);
     };
 
@@ -25,6 +24,9 @@ namespace cvops {
         float milliseconds;
         InferenceResult();
         ~InferenceResult();
+        InferenceResult& operator=(const InferenceResult &other);
+        InferenceResult clone();
+
     };
 
     

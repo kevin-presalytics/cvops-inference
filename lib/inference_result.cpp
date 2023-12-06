@@ -4,14 +4,12 @@
 
 namespace cvops
 {
-    Box::Box() {}
-
     Box::Box(cv::Rect base_rect, int class_id, char* class_name, int object_id, float confidence) : cv::Rect(base_rect)
     {
-        class_id = class_id;
-        class_name = class_name;
-        object_id = object_id;
-        confidence = confidence;
+        this->class_id = class_id;
+        this->class_name = class_name;
+        this->object_id = object_id;
+        this->confidence = confidence;
     }
 
     InferenceResult::InferenceResult() {
@@ -40,4 +38,43 @@ namespace cvops
             }
         }
     }
+
+    InferenceResult &InferenceResult::operator=(const InferenceResult &other) {
+        if (this != &other) {
+            this->boxes_count = other.boxes_count;
+            this->image_size = other.image_size;
+            this->image_height = other.image_height;
+            this->image_width = other.image_width;
+            this->milliseconds = other.milliseconds;
+            void* boxes_ptr = operator new[](sizeof(Box) * other.boxes_count);
+            this->boxes = static_cast<Box*>(boxes_ptr);
+            memcpy(this->boxes, other.boxes, other.boxes_count * sizeof(Box));
+            if (other.image) {
+                this->image = new unsigned char[other.image_size];
+                memcpy(this->image, other.image, other.image_size);
+            } else {
+                this->image = nullptr;
+            }
+        }
+        return *this;
+    }
+
+    InferenceResult InferenceResult::clone() {
+        InferenceResult result = InferenceResult();
+        result.boxes_count = this->boxes_count;
+        result.image_size = this->image_size;
+        result.image_height = this->image_height;
+        result.image_width = this->image_width;
+        result.milliseconds = this->milliseconds;
+        void* boxes_ptr = operator new[](sizeof(Box) * this->boxes_count);
+        result.boxes = static_cast<Box*>(boxes_ptr);
+        memcpy(result.boxes, this->boxes, this->boxes_count * sizeof(Box));
+        if (this->image) {
+            result.image = new unsigned char[this->image_size];
+            memcpy(result.image, this->image, this->image_size);
+        } else {
+            result.image = nullptr;
+        }
+        return result;
+    } 
 }
