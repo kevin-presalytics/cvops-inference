@@ -14,6 +14,7 @@ namespace cvops
 	KalmanTracker::KalmanTracker(Box* box, int object_id)
 	{
         initial_box_ = box;
+        initial_box.object_id = object_id;
         state_ = ImageUtils::to_cv_rect(*box); 
 		time_since_update = 0;
 		hits = 0;

@@ -38,8 +38,8 @@ ExternalProject_Add(OpenCV
     CMAKE_ARGS
         -DCMAKE_BUILD_TYPE=Debug
         -DCMAKE_INSTALL_PREFIX=${OPENCV_INSTALL_ROOT}
-        -DBUILD_SHARED_LIBS=OFF
-        -DBUILD_opencv_python3=OFF
+        -DBUILD_SHARED_LIBS=ON
+        -DBUILD_opencv_python3=ON
         -DBUILD_opencv_python_bindings_generator=OFF
         -DBUILD_JAVA=OFF
         -DBUILD_FAT_JAVA_LIB=OFF

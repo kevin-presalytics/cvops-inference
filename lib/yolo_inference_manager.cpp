@@ -137,7 +137,7 @@ namespace cvops
             inference_result->boxes[j].width = boxes[idx].width;
             inference_result->boxes[j].height = boxes[idx].height;
             inference_result->boxes[j].class_id = class_ids[idx];
-            inference_result->boxes[j].object_id = j;
+            inference_result->boxes[j].object_id = 0;
             inference_result->boxes[j].confidence = confidences[idx];
             inference_result->boxes[j].class_name = (char*)this->metadata["classes"][std::to_string(class_ids[idx])].asCString();
             // for debugging
